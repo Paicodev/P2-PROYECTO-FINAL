@@ -2,8 +2,6 @@
 
 package com.gym.manager.util;
 
-//import com.gym.manager.exceptions.ConexionBDException;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
