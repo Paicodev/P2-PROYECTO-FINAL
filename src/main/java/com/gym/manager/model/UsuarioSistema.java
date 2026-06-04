@@ -1,4 +1,4 @@
-package main.java.com.gym.manager.model;
+package com.gym.manager.model;
 
 import java.time.LocalDateTime;
 

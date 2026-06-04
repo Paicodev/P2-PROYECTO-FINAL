@@ -1,4 +1,4 @@
-package main.java.com.gym.manager.model;
+package com.gym.manager.model;
 
 /**
  * Representa los roles de acceso disponibles en el sistema.

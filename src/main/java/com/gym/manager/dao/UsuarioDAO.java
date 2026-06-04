@@ -1,4 +1,4 @@
-package main.java.com.gym.manager.dao;
+package com.gym.manager.dao;
 
 import com.gym.manager.model.UsuarioSistema;
 import com.gym.manager.model.RolUsuario;
@@ -29,20 +29,20 @@ public class UsuarioDAO implements DAO<UsuarioSistema> {
     public boolean validarLogin(String username, String password) {
         String sql = "SELECT * FROM UsuarioSistema WHERE username = ? AND password_hash = ?";
         
-        // Try-with-resources: Cierra automáticamente la conexión, el statement y el resultset
-        try (Connection conn = DatabaseManager.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        //Obtenemos la conexión compartida desde DatabaseManager
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        
+        //Solo el PreparedStatement va dentro del try-with-resources
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, username);
             pstmt.setString(2, password);
             
             try (ResultSet rs = pstmt.executeQuery()) {
-                // Si rs.next() es true, significa que encontró un usuario con esos datos
                 return rs.next();
             }
             
         } catch (SQLException e) {
-            // Lanzamos la excepcion personalizada de ConexionBDExeption para manejar errores de base de datos
             throw new ConexionBDException("Error al validar el login en la base de datos.", e);
         }
     }
