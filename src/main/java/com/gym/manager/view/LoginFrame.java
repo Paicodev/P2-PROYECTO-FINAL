@@ -72,6 +72,9 @@ public class LoginFrame extends JFrame {
         gbc.gridy = 3;
         gbc.gridwidth = 2; // Que el botón ocupe todo el ancho
         add(btnIngresar, gbc);
+
+        // Inicializamos los eventos para el botón
+        inicializarEventos();
     }
 
     // Getters para obtener los valores ingresados por el usuario y el botón para agregar el ActionListener en el controlador
@@ -85,5 +88,15 @@ public class LoginFrame extends JFrame {
 
     public JButton getBtnIngresar() {
         return btnIngresar;
+    }
+
+    public void inicializarEventos() {
+        btnIngresar.addActionListener(e -> {
+            
+            String usuario = getUsuario();
+            String password = getPassword();
+            
+            System.out.println("El usuario [" + usuario + "] intentó ingresar con la clave [" + password + "]");
+        });
     }
 }
