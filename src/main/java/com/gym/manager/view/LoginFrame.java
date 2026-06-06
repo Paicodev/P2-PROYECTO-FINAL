@@ -2,6 +2,9 @@ package com.gym.manager.view;
 
 // Importamos las librerias de swing y awt para las fuentes, colores, etc.
 import javax.swing.*;
+
+import com.gym.manager.dao.UsuarioDAO;
+
 import java.awt.*;
 
 public class LoginFrame extends JFrame {
@@ -96,7 +99,35 @@ public class LoginFrame extends JFrame {
             String usuario = getUsuario();
             String password = getPassword();
             
-            System.out.println("El usuario [" + usuario + "] intentó ingresar con la clave [" + password + "]");
+            //Instanciación del DAO para validar el login
+            UsuarioDAO dao = new UsuarioDAO();
+
+            try {
+                // Llamamos al método que va a la BD
+                boolean loginExitoso = dao.validarLogin(usuario, password);
+
+                // Mostramos los JOptionPanes según el resultado
+                if (loginExitoso) {
+                    JOptionPane.showMessageDialog(this, 
+                        "¡Bienvenido a FitBase, " + usuario + "!", 
+                        "Acceso Concedido", 
+                        JOptionPane.INFORMATION_MESSAGE);
+                        /*
+                         Aquí es donde irá la lógica para abrir la ventana principal
+                        */
+                } else {
+                    JOptionPane.showMessageDialog(this, 
+                        "Usuario o contraseña incorrectos.", 
+                        "Error de Autenticación", 
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception ex) {
+                // Si se cae la base de datos, le avisamos al usuario amigablemente
+                JOptionPane.showMessageDialog(this, 
+                    "Error al conectar con el servidor: " + ex.getMessage(), 
+                    "Error Crítico", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
         });
     }
 }
