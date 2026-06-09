@@ -112,9 +112,16 @@ public class LoginFrame extends JFrame {
                         "¡Bienvenido a FitBase, " + usuario + "!", 
                         "Acceso Concedido", 
                         JOptionPane.INFORMATION_MESSAGE);
-                        /*
-                         Aquí es donde irá la lógica para abrir la ventana principal
-                        */
+                        // lógica para abrir la ventana principal
+
+                        String rol = dao.obtenerRol(usuario);
+                        VentanaPrincipal ventanaMain = new VentanaPrincipal(usuario, rol);
+
+                        ventanaMain.setVisible(true);
+
+                        //destruimos la ventana login para que no se muestre mas
+                        this.dispose();
+  
                 } else {
                     JOptionPane.showMessageDialog(this, 
                         "Usuario o contraseña incorrectos.", 
