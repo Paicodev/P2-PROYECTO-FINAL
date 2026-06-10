@@ -47,6 +47,29 @@ public class UsuarioDAO implements DAO<UsuarioSistema> {
         }
     }
 
+    // Método nuevo en UsuarioDAO — lo agrega tu compañero
+    public String obtenerRol(String username) {
+    String sql = "SELECT rol FROM UsuarioSistema WHERE username = ?";
+    // ... ejecuta la query y devuelve el rol como String
+        Connection conn = DatabaseManager.getInstance().getConnection();
+            
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                
+                pstmt.setString(1, username);
+                
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getString("rol");
+                    } else {
+                        return null; // o lanzar excepción si el usuario no existe
+                    }
+                }
+                
+            } catch (SQLException e) {
+                throw new ConexionBDException("Error al obtener el rol del usuario en la base de datos.", e);
+            }
+}
+
     // =========================================================================
     // MÉTODOS OBLIGATORIOS POR LA INTERFAZ DAO<T>
     // =========================================================================
