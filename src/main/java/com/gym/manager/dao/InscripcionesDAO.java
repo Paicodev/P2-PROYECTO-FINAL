@@ -22,7 +22,7 @@ public class InscripcionesDAO {
         
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-                throw new ConexionBDException("Error al obtener el rol del usuario en la base de datos.", e);
+                throw new ConexionBDException("Error al registrar la inscripción: " + e.getMessage(), e);
             }
     }
     
