@@ -24,14 +24,14 @@ public class PagoDAO implements DAO<Pago> {
     @Override
     public void guardar(Pago pago) {
         // 2. Preparamos el SQL con "?" para evitar inyección SQL (Seguridad)
-        String sql = "INSERT INTO pagos (miembro_id, monto, fecha, tipo, estado, descripcion) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Pagos (Miembros_idMiembros, monto, fecha_pago, tipo, estado, descripcion) VALUES (?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement stmt = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             
             // 3. Reemplazamos los "?" con los datos de nuestro objeto Pago
             stmt.setInt(1, pago.getMiembro().getId());
             stmt.setDouble(2, pago.getMonto());
-            stmt.setTimestamp(3, Timestamp.valueOf(pago.getFecha())); // Convertimos LocalDateTime de Java a Timestamp de SQL
+            stmt.setDate(3, java.sql.Date.valueOf(pago.getFecha().toLocalDate())); // Convertimos LocalDateTime a Date porque MySQL usa DATE
             stmt.setString(4, pago.getTipo().name());
             stmt.setString(5, pago.getEstado().name());
             stmt.setString(6, pago.getDescripcion());
@@ -52,7 +52,7 @@ public class PagoDAO implements DAO<Pago> {
 
     @Override
     public Optional<Pago> buscarPorId(int id) {
-        String sql = "SELECT * FROM pagos WHERE id = ?";
+        String sql = "SELECT * FROM Pagos WHERE idPagos = ?";
         
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -72,7 +72,7 @@ public class PagoDAO implements DAO<Pago> {
     @Override
     public List<Pago> obtenerTodos() {
         List<Pago> lista = new ArrayList<>();
-        String sql = "SELECT * FROM pagos";
+        String sql = "SELECT * FROM Pagos";
         
         try (PreparedStatement stmt = conexion.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -89,12 +89,12 @@ public class PagoDAO implements DAO<Pago> {
 
     @Override
     public void actualizar(Pago pago) {
-        String sql = "UPDATE pagos SET miembro_id = ?, monto = ?, fecha = ?, tipo = ?, estado = ?, descripcion = ? WHERE id = ?";
+        String sql = "UPDATE Pagos SET Miembros_idMiembros = ?, monto = ?, fecha_pago = ?, tipo = ?, estado = ?, descripcion = ? WHERE idPagos = ?";
         
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
             stmt.setInt(1, pago.getMiembro().getId());
             stmt.setDouble(2, pago.getMonto());
-            stmt.setTimestamp(3, Timestamp.valueOf(pago.getFecha()));
+            stmt.setDate(3, java.sql.Date.valueOf(pago.getFecha().toLocalDate()));
             stmt.setString(4, pago.getTipo().name());
             stmt.setString(5, pago.getEstado().name());
             stmt.setString(6, pago.getDescripcion());
@@ -108,7 +108,7 @@ public class PagoDAO implements DAO<Pago> {
 
     @Override
     public void eliminar(int id) {
-        String sql = "DELETE FROM pagos WHERE id = ?";
+        String sql = "DELETE FROM Pagos WHERE idPagos = ?";
         
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -122,13 +122,16 @@ public class PagoDAO implements DAO<Pago> {
      * Método auxiliar para transformar un ResultSet en un objeto Pago
      */
     private Pago mapearPago(ResultSet rs) throws SQLException {
-        Miembro miembro = new Miembro(rs.getInt("miembro_id"));
+        // Instanciamos un Miembro temporal con datos de relleno válidos solo para guardar su ID.
+        // En un futuro, aquí se debería usar un MiembroDAO.buscarPorId(rs.getInt("Miembros_idMiembros"))
+        Miembro miembro = new Miembro(null, null, null, null, rs.getInt("Miembros_idMiembros"), 
+                                      "NombreTemp", "ApellidoTemp", "00000000", "test@test.com", "0000000000");
         
         return new Pago(
-            rs.getInt("id"),
+            rs.getInt("idPagos"),
             miembro,
             rs.getDouble("monto"),
-            rs.getTimestamp("fecha").toLocalDateTime(),
+            rs.getDate("fecha_pago").toLocalDate().atStartOfDay(),
             TipoPago.valueOf(rs.getString("tipo")),
             EstadoPago.valueOf(rs.getString("estado")),
             rs.getString("descripcion")
