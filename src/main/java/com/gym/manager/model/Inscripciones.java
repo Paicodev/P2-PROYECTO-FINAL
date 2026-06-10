@@ -5,7 +5,7 @@ import java.time.LocalDate;
 /**
  * Representa el registro de una inscripción o asistencia de un miembro a una clase.
  */
-public class Inscripcion {
+public class Inscripciones {
     private int idInscripciones;
     private LocalDate fechaInscripcion;
     private boolean asistio;
@@ -13,19 +13,19 @@ public class Inscripcion {
     // Claves Foráneas
     private int clasesIdClases;
     private int miembrosIdMiembros;
-    private int planesIdPlanes;
-    private int personaIdPersona;
+    //private int planesIdPlanes;
+    //private int personaIdPersona;
 
-    public Inscripcion() {}
+    public Inscripciones() {}
 
-    public Inscripcion(LocalDate fechaInscripcion, boolean asistio, int clasesIdClases, 
-                       int miembrosIdMiembros, int planesIdPlanes, int personaIdPersona) {
+    public Inscripciones(LocalDate fechaInscripcion, boolean asistio, int clasesIdClases, 
+                       int miembrosIdMiembros) {
         this.fechaInscripcion = fechaInscripcion;
         this.asistio = asistio;
         this.clasesIdClases = clasesIdClases;
         this.miembrosIdMiembros = miembrosIdMiembros;
-        this.planesIdPlanes = planesIdPlanes;
-        this.personaIdPersona = personaIdPersona;
+        //this.planesIdPlanes = planesIdPlanes;
+        //this.personaIdPersona = personaIdPersona;
     }
 
     // Getters y Setters
@@ -39,8 +39,8 @@ public class Inscripcion {
     public void setClasesIdClases(int clasesIdClases) { this.clasesIdClases = clasesIdClases; }
     public int getMiembrosIdMiembros() { return miembrosIdMiembros; }
     public void setMiembrosIdMiembros(int miembrosIdMiembros) { this.miembrosIdMiembros = miembrosIdMiembros; }
-    public int getPlanesIdPlanes() { return planesIdPlanes; }
-    public void setPlanesIdPlanes(int planesIdPlanes) { this.planesIdPlanes = planesIdPlanes; }
-    public int getPersonaIdPersona() { return personaIdPersona; }
-    public void setPersonaIdPersona(int personaIdPersona) { this.personaIdPersona = personaIdPersona; }
+    //public int getPlanesIdPlanes() { return planesIdPlanes; }
+    //public void setPlanesIdPlanes(int planesIdPlanes) { this.planesIdPlanes = planesIdPlanes; }
+    //public int getPersonaIdPersona() { return personaIdPersona; }
+    //public void setPersonaIdPersona(int personaIdPersona) { this.personaIdPersona = personaIdPersona; }
 }
