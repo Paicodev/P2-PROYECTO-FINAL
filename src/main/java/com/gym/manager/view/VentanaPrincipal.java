@@ -2,6 +2,9 @@ package com.gym.manager.view;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+
+import com.gym.manager.view.panels.PanelClases;
+import com.gym.manager.view.panels.PanelReportes;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -198,11 +201,12 @@ public class VentanaPrincipal extends JFrame {
 
         // TODO → panelCentral.add(new PanelAsistencia(), "asistencia");
 
-        // TODO → panelCentral.add(new PanelInscripciones(), "inscripciones");
+        PanelClases panelClases = new PanelClases();
+        panelCentral.add(panelClases, "inscripciones");
 
         // TODO → panelCentral.add(new PanelPagos(), "pagos");
 
-        // TODO → panelCentral.add(new PanelReportes(), "reportes");
+        panelCentral.add(new PanelReportes(), "reportes");
 
         add(panelCentral, BorderLayout.CENTER);
 
