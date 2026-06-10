@@ -1,6 +1,9 @@
 package com.gym.manager.view.panels;
 import javax.swing.*;
 
+/**
+ * Panel de Reportes que exportará un informe de las operaciones
+ */
 public class PanelReportes extends JPanel {
 
     private JButton btnIngresos;
