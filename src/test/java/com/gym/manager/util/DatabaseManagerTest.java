@@ -9,11 +9,9 @@ import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/*
- Test unitario para DatabaseManager
-   Requisito previo: MySQL tiene que estar corriendo en localhost:3306
-     y la base de datos 'mydb' tiene que existir.
-     Si no, el test va a fallar en el @BeforeAll con RuntimeException.
+/**
+ * Tests unitarios para la clase DatabaseManager.
+ * @author Zoe Brambilla
  */
 class DatabaseManagerTest {
 
