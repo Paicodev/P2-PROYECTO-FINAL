@@ -69,7 +69,6 @@ public class PagoService {
 
         } catch (Exception e) {
             // Rollback: Si algo falló, deshacemos TODO lo que se haya intentado guardar
-            try { conn.rollback(); } catch (SQLException ex) { }
             try { 
                 conn.rollback(); 
             } catch (SQLException ex) { 
@@ -78,7 +77,6 @@ public class PagoService {
             throw new RuntimeException("Error al registrar el pago. Transacción revertida.", e);
         } finally {
             // Restauramos la conexión a su estado original
-            try { conn.setAutoCommit(true); } catch (SQLException ex) { }
             try { 
                 conn.setAutoCommit(true); 
             } catch (SQLException ex) { 
