@@ -4,7 +4,7 @@ import com.gym.manager.dao.PagoDAO;
 import com.gym.manager.exceptions.ConexionBDException;
 import com.gym.manager.exceptions.DatosInvalidosException;
 import com.gym.manager.model.Pago;
-import com.gym.manager.model.TipoPago;
+import com.gym.manager.model.enums.TipoPago;
 import com.gym.manager.util.DatabaseManager;
 
 import java.sql.Connection;

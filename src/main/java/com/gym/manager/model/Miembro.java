@@ -2,6 +2,9 @@ package com.gym.manager.model;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit; //importo para calcular los dias para vencer
 import java.util.List;
+
+import com.gym.manager.model.enums.EstadoMiembro;
+
 import java.util.ArrayList;
 
 public class Miembro extends Persona {

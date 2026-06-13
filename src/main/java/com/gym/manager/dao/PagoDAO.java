@@ -1,10 +1,10 @@
 package com.gym.manager.dao;
 
 import com.gym.manager.exceptions.ConexionBDException;
-import com.gym.manager.model.EstadoPago;
 import com.gym.manager.model.Miembro;
 import com.gym.manager.model.Pago;
-import com.gym.manager.model.TipoPago;
+import com.gym.manager.model.enums.EstadoPago;
+import com.gym.manager.model.enums.TipoPago;
 import com.gym.manager.util.DatabaseManager;
 
 import java.sql.*;
