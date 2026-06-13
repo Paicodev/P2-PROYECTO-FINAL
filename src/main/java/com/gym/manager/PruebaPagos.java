@@ -33,7 +33,7 @@ public class PruebaPagos {
         try {
             service.registrarPago(pago);
             System.out.println("ÉXITO: El pago se guardó correctamente en la base de datos.");
-            System.out.println("Nueva fecha de vencimiento calculada en memoria: " + miembro.getfechaVencimiento());
+            System.out.println("Nueva fecha de vencimiento calculada en memoria: " + miembro.getFechaVencimiento());
         } catch (Exception e) {
             System.err.println("ERROR al procesar el pago: " + e.getMessage());
             e.printStackTrace();
