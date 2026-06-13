@@ -4,6 +4,7 @@ import com.gym.manager.model.UsuarioSistema;
 import com.gym.manager.model.enums.RolUsuario;
 import com.gym.manager.util.DatabaseManager;
 import com.gym.manager.exceptions.ConexionBDException;
+import com.gym.manager.interfaces.DAO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

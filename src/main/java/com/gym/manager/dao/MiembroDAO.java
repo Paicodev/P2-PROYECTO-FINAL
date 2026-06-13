@@ -5,6 +5,7 @@ import com.gym.manager.model.Plan;
 import com.gym.manager.model.enums.EstadoMiembro;
 import com.gym.manager.util.DatabaseManager;
 import com.gym.manager.exceptions.ConexionBDException;
+import com.gym.manager.interfaces.DAO;
 
 import java.sql.*;
 import java.time.LocalDate;

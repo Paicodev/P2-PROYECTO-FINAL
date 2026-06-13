@@ -1,4 +1,4 @@
-package com.gym.manager.dao;
+package com.gym.manager.interfaces;
 
 import com.gym.manager.exceptions.ConexionBDException;
 import java.util.List;

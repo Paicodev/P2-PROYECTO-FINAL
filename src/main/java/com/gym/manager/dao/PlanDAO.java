@@ -2,6 +2,7 @@ package com.gym.manager.dao;
 
 import com.gym.manager.model.Plan;
 import com.gym.manager.util.DatabaseManager;
+import com.gym.manager.interfaces.DAO;
 
 import java.sql.*;
 import java.util.ArrayList;
