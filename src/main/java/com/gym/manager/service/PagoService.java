@@ -1,6 +1,7 @@
 package com.gym.manager.service;
 
 import com.gym.manager.dao.PagoDAO;
+import com.gym.manager.dao.MiembroDAO;
 import com.gym.manager.exceptions.ConexionBDException;
 import com.gym.manager.exceptions.DatosInvalidosException;
 import com.gym.manager.model.Pago;
@@ -59,9 +60,9 @@ public class PagoService {
                 
                 pago.getMiembro().setFechaVencimiento(nuevoVencimiento);
                 
-                // TODO: Cuando se termine el MiembroDAO, se debe descomentar esto o escribir como es debido:
-                // MiembroDAO miembroDAO = new MiembroDAO();
-                // miembroDAO.actualizar(pago.getMiembro());
+                // Actualizamos el miembro en la BD con su nueva fecha de vencimiento
+                MiembroDAO miembroDAO = new MiembroDAO();
+                miembroDAO.actualizar(pago.getMiembro());
             }
 
             // Confirmamos la transacción (Todo salió perfecto, se aplican los cambios)
