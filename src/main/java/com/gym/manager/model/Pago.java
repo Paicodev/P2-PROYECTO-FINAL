@@ -2,6 +2,9 @@ package com.gym.manager.model;
 
 import java.time.LocalDateTime;
 
+import com.gym.manager.model.enums.EstadoPago;
+import com.gym.manager.model.enums.TipoPago;
+
 /**
  * Clase modelo que representa un pago en el sistema.
  * Mapea directamente con la tabla 'Pagos' de la base de datos.

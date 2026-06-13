@@ -1,4 +1,4 @@
-package com.gym.manager.model;
+package com.gym.manager.model.enums;
 
 /**
  * Representa los roles de acceso disponibles en el sistema.
