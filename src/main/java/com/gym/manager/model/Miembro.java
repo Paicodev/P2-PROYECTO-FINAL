@@ -9,7 +9,7 @@ public class Miembro extends Persona {
     private LocalDate fechaVencimiento;
     private Plan plan; 
     private EstadoMiembro estado;
-    private List<Pago> historialPagos; //no existe la clase pago por el momento
+    private List<Pago> historialPagos; 
 
     public Miembro(LocalDate fechaInscripcion, LocalDate fechaVencimiento, Plan plan, EstadoMiembro estado, int id, String nombre, String apellido, String dni, String email, String telefono) {
         super(id, nombre, apellido, dni, email, telefono);

@@ -52,12 +52,12 @@ public class PagoService {
 
             // Lógica extra: Si es una mensualidad, se le suma un mes al vencimiento del miembro
             if (pago.getTipo() == TipoPago.MENSUALIDAD) {
-                LocalDate fechaActual = pago.getMiembro().getfechaVencimiento();
+                LocalDate fechaActual = pago.getMiembro().getFechaVencimiento();
                 LocalDate nuevoVencimiento = (fechaActual != null && fechaActual.isAfter(LocalDate.now())) 
                         ? fechaActual.plusMonths(1) 
                         : LocalDate.now().plusMonths(1);
                 
-                pago.getMiembro().setfechaVencimiento(nuevoVencimiento);
+                pago.getMiembro().setFechaVencimiento(nuevoVencimiento);
                 
                 // TODO: Cuando se termine el MiembroDAO, se debe descomentar esto o escribir como es debido:
                 // MiembroDAO miembroDAO = new MiembroDAO();

@@ -3,14 +3,17 @@ package com.gym.manager.model;
 public class Plan {
     private int id;
     private String nombrePlan;
-    private double precioMensual;
     private int duracionMeses;
+    private String descripcion;
+    private double precioMensual;
 
-    public Plan(int id, String nombrePlan, double precioMensual, int duracionMeses) {
+    public Plan(int id, String nombrePlan, int duracionMeses, String descripcion, double precioMensual) {
         this.id = id;
         this.nombrePlan = nombrePlan;
-        this.precioMensual = precioMensual;
         this.duracionMeses = duracionMeses;
+        this.descripcion = descripcion;
+        this.precioMensual = precioMensual;
+
     }
 
     public int getId() {
@@ -29,6 +32,22 @@ public class Plan {
         this.nombrePlan = nombrePlan;
     }
 
+    public int getDuracionMeses() {
+        return duracionMeses;
+    }
+
+    public void setDuracionMeses(int duracionMeses) {
+        this.duracionMeses = duracionMeses;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion (String descripcion){
+        this.descripcion = descripcion;
+    }
+    
     public double getPrecioMensual() {
         return precioMensual;
     }
@@ -37,14 +56,6 @@ public class Plan {
         this.precioMensual = precioMensual;
     }
 
-    public int getDuracionMeses() {
-        return duracionMeses;
-    }
-
-    public void setDuracionMeses(int duracionMeses) {
-        this.duracionMeses = duracionMeses;
-    }
-    
     public double calcularPrecioTotal() {
         return precioMensual * duracionMeses;
     }

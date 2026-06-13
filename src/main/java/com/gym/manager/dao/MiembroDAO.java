@@ -1,7 +1,7 @@
 package com.gym.manager.dao;
 
 import com.gym.manager.model.Miembro;
-//import com.gym.manager.model.Plan;
+import com.gym.manager.model.Plan;
 import com.gym.manager.util.DatabaseManager;
 import com.gym.manager.exceptions.ConexionBDException;
 import com.gym.manager.model.EstadoMiembro;
@@ -101,10 +101,13 @@ public class MiembroDAO implements DAO<Miembro> {
                 LocalDate fechaInscripcion = rs.getDate("fecha_inscripcion").toLocalDate();
                 LocalDate fechaVencimiento = rs.getDate("fecha_vencimiento").toLocalDate();
                 EstadoMiembro estado = EstadoMiembro.valueOf(rs.getString("estado"));
-                //Plan plan = new Plan();
 
-                Miembro miembroEncontrado = new Miembro(fechaInscripcion, fechaVencimiento, null, estado, id, nombre, apellido, dni, email, telefono);
-                return Optional.of(miembroEncontrado);
+                int idPlan = rs.getInt("Planes_id_planes");
+                PlanDAO planDAO = new PlanDAO();
+                Plan planAsignado = planDAO.buscarPorId(idPlan).orElse(null);
+
+                Miembro miembro = new Miembro(fechaInscripcion, fechaVencimiento, planAsignado, estado, id, nombre, apellido, dni, email, telefono);
+                return Optional.of(miembro);
             }
         } catch (SQLException e) {
             System.out.println("Error al buscar miembro por id: " + e.getMessage());
@@ -133,9 +136,11 @@ public class MiembroDAO implements DAO<Miembro> {
                 LocalDate fechaVencimiento = rs.getDate("fecha_vencimiento").toLocalDate();
                 EstadoMiembro estado = EstadoMiembro.valueOf(rs.getString("estado"));
 
-                //Plan plan = new Plan();
-                
-                Miembro miembro = new Miembro(fechaInscripcion, fechaVencimiento, null, estado, id, nombre, apellido, dni, email, telefono);
+                int idPlan = rs.getInt("Planes_id_planes");
+                PlanDAO planDAO = new PlanDAO();
+                Plan planAsignado = planDAO.buscarPorId(idPlan).orElse(null);
+
+                Miembro miembro = new Miembro(fechaInscripcion, fechaVencimiento, planAsignado, estado, id, nombre, apellido, dni, email, telefono);
 
                 lista.add(miembro);
             }
@@ -250,10 +255,12 @@ public class MiembroDAO implements DAO<Miembro> {
                 LocalDate fechaVencimiento = rs.getDate("fecha_vencimiento").toLocalDate();
                 EstadoMiembro estado = EstadoMiembro.valueOf(rs.getString("estado"));
 
-                //Plan plan = new Plan();
+                int idPlan = rs.getInt("Planes_id_planes");
+                PlanDAO planDAO = new PlanDAO();
+                Plan planAsignado = planDAO.buscarPorId(idPlan).orElse(null);
 
-                Miembro miembroEncontrado = new Miembro(fechaInscripcion, fechaVencimiento, null, estado, id, nombre, apellido, dni, email, telefono);
-                return Optional.of(miembroEncontrado);
+                Miembro miembro = new Miembro(fechaInscripcion, fechaVencimiento, planAsignado, estado, id, nombre, apellido, dni, email, telefono);
+                return Optional.of(miembro);
             }
         } catch (SQLException e) {
             System.out.println("Error al buscar miembro por dni " + e.getMessage());
