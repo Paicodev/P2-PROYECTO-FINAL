@@ -5,7 +5,9 @@ import com.gym.manager.model.EstadoPago;
 import com.gym.manager.model.Miembro;
 import com.gym.manager.model.Pago;
 import com.gym.manager.model.TipoPago;
+import com.gym.manager.service.AlertaVencimientoService;
 import com.gym.manager.service.PagoService;
+import com.gym.manager.interfaces.Notificador;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,6 +40,20 @@ public class PruebaPagos {
             System.err.println("ERROR al procesar el pago: " + e.getMessage());
             e.printStackTrace();
         }
+
+        System.out.println("\n=== Iniciando Prueba de Alertas (Sin Hilos) ===");
+        
+        // 1. Definimos cómo notificar
+        Notificador miNotificador = (miembroVencido) -> {
+            System.out.println("⚠️ ALERTA: El miembro " + miembroVencido.getNombreCompleto() + 
+                               " vence el " + miembroVencido.getFechaVencimiento());
+        };
+
+        // 2. Creamos el servicio
+        AlertaVencimientoService alertaService = new AlertaVencimientoService(miNotificador);
+        
+        // 3. Revisamos vencimientos en los próximos 5 días
+        alertaService.revisarVencimientos(5);
     }
 }
 
