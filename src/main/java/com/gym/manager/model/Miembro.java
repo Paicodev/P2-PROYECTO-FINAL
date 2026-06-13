@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Miembro extends Persona {
-    private LocalDate fechaIscripcion;
+    private LocalDate fechaInscripcion;
     private LocalDate fechaVencimiento;
     private Plan plan; 
     private EstadoMiembro estado;
@@ -13,26 +13,26 @@ public class Miembro extends Persona {
 
     public Miembro(LocalDate fechaInscripcion, LocalDate fechaVencimiento, Plan plan, EstadoMiembro estado, int id, String nombre, String apellido, String dni, String email, String telefono) {
         super(id, nombre, apellido, dni, email, telefono);
-        this.fechaIscripcion = fechaInscripcion;
+        this.fechaInscripcion = fechaInscripcion;
         this.fechaVencimiento = fechaVencimiento;
         this.plan = plan;
         this.estado = estado;
         this.historialPagos = new ArrayList<>(); //inicializo el historial de pagos como una lista vacia
     }
 
-    public LocalDate getfechaIscripcion() {
-        return fechaIscripcion;
+    public LocalDate getFechaInscripcion() {
+        return fechaInscripcion;
     }
 
-    public void setfechaIscripcion(LocalDate fechaIscripcion) {
-        this.fechaIscripcion = fechaIscripcion;
+    public void setFechaInscripcion(LocalDate fechaInscripcion) {
+        this.fechaInscripcion = fechaInscripcion;
     }
 
-    public LocalDate getfechaVencimiento() {
+    public LocalDate getFechaVencimiento() {
         return fechaVencimiento;
     }
 
-    public void setfechaVencimiento(LocalDate fechaVencimiento) {
+    public void setFechaVencimiento(LocalDate fechaVencimiento) {
         this.fechaVencimiento = fechaVencimiento;
     }
 
