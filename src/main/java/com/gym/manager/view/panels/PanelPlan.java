@@ -91,7 +91,7 @@ public class PanelPlan extends JPanel {
         return panelContenedor;
     }
 
-    private JScrollPane crearPanelGrilla() {
+    private JPanel crearPanelGrilla() {
         JPanel panelTabla = new JPanel(new BorderLayout());
         panelTabla.setBackground(BG_CENTRAL);
 
@@ -131,7 +131,7 @@ public class PanelPlan extends JPanel {
 
         panelTabla.add(panelBotonesTabla, BorderLayout.SOUTH);
 
-        return scrollPane;
+        return panelTabla;
     }
 
     private void cargarDatosEnTabla() {
@@ -196,9 +196,15 @@ public class PanelPlan extends JPanel {
         int confirmacion = JOptionPane.showConfirmDialog(this, "¿Seguro que desea eliminar este plan?", "Confirmar", JOptionPane.YES_NO_OPTION);
         
         if (confirmacion == JOptionPane.YES_OPTION) {
-            planService.eliminarPlan(id); 
-            cargarDatosEnTabla();
-            JOptionPane.showMessageDialog(this, "Operación finalizada.");
+            try {
+                // Intentamos eliminar
+                planService.eliminarPlan(id); 
+                cargarDatosEnTabla();
+                JOptionPane.showMessageDialog(this, "Plan eliminado con éxito.");
+            } catch (Exception ex) {
+                // Si MySQL frena el borrado, mostramos el cartel de error
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error de Integridad", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 

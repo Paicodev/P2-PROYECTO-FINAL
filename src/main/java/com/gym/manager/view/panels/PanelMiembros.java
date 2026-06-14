@@ -2,6 +2,7 @@ package com.gym.manager.view.panels;
 
 import com.gym.manager.model.Miembro;
 import com.gym.manager.service.MiembroService;
+import com.gym.manager.view.dialogs.DialogMiembro;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -91,7 +92,7 @@ public class PanelMiembros extends JPanel {
         return panelSup;
     }
 
-    private JScrollPane crearPanelGrilla() {
+    private JPanel crearPanelGrilla() {
         JPanel panelTabla = new JPanel(new BorderLayout());
         panelTabla.setBackground(BG_CENTRAL);
 
@@ -135,7 +136,7 @@ public class PanelMiembros extends JPanel {
 
         panelTabla.add(panelBotonesTabla, BorderLayout.SOUTH);
 
-        return scrollPane;
+        return panelTabla;
     }
 
     // Uso SwingWorker para que no se trabe la UI mientras busca en MySQL
@@ -204,8 +205,20 @@ public class PanelMiembros extends JPanel {
     }
 
     private void abrirDialogoNuevoMiembro() {
-        // armo el dialog para crear un nuevo miembro, sin pasarle ningún ID porque no hay ninguno seleccionado
-        JOptionPane.showMessageDialog(this, "Falta armar el DialogMiembro vacío");
+       // En Swing, para obtener la ventana principal contenedora usamos SwingUtilities
+        Window parent = SwingUtilities.getWindowAncestor(this);
+        DialogMiembro dialog = new DialogMiembro(parent, null);
+        dialog.setVisible(true); // El código se pausa acá hasta que el usuario cierre el dialog
+
+        if (dialog.isConfirmado()) {
+            try {
+                miembroService.guardarMiembro(dialog.getMiembroResultante());
+                cargarDatosEnTabla();
+                JOptionPane.showMessageDialog(this, "Miembro registrado con éxito.");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     private void abrirDialogoEditarMiembro() {
@@ -219,7 +232,22 @@ public class PanelMiembros extends JPanel {
         int idMiembro = (int) modeloTabla.getValueAt(filaRealModelo, 0);
         
         // armo el DialogMiembro pasándole el ID del miembro seleccionado para que traiga sus datos y los muestre en el formulario
-        JOptionPane.showMessageDialog(this, "Falta armar el DialogMiembro cargando el ID: " + idMiembro);
+        // Buscamos el miembro completo en la base de datos para editarlo
+        miembroService.buscarPorId(idMiembro).ifPresent(miembroEditar -> {
+            Window parent = SwingUtilities.getWindowAncestor(this);
+            DialogMiembro dialog = new DialogMiembro(parent, miembroEditar);
+            dialog.setVisible(true);
+
+            if (dialog.isConfirmado()) {
+                try {
+                    miembroService.actualizarMiembro(dialog.getMiembroResultante());
+                    cargarDatosEnTabla();
+                    JOptionPane.showMessageDialog(this, "Miembro actualizado con éxito.");
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
     }
 
     private JButton crearBoton(String texto, Color color) {

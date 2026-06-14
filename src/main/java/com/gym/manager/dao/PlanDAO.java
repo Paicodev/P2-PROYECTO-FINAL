@@ -104,7 +104,7 @@ public class PlanDAO implements DAO<Plan> {
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Error al eliminar el plan " + e.getMessage()); //si el plan tiene miembros, no podrá eliminarse por la restricción de clave foránea
+            throw new RuntimeException("No se puede eliminar el plan porque hay miembros inscriptos usándolo.");
         }
     }
 
