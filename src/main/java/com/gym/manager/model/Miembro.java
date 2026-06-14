@@ -2,37 +2,40 @@ package com.gym.manager.model;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit; //importo para calcular los dias para vencer
 import java.util.List;
+
+import com.gym.manager.model.enums.EstadoMiembro;
+
 import java.util.ArrayList;
 
 public class Miembro extends Persona {
-    private LocalDate fechaIscripcion;
+    private LocalDate fechaInscripcion;
     private LocalDate fechaVencimiento;
     private Plan plan; 
     private EstadoMiembro estado;
-    private List<Pago> historialPagos; //no existe la clase pago por el momento
+    private List<Pago> historialPagos; 
 
     public Miembro(LocalDate fechaInscripcion, LocalDate fechaVencimiento, Plan plan, EstadoMiembro estado, int id, String nombre, String apellido, String dni, String email, String telefono) {
         super(id, nombre, apellido, dni, email, telefono);
-        this.fechaIscripcion = fechaInscripcion;
+        this.fechaInscripcion = fechaInscripcion;
         this.fechaVencimiento = fechaVencimiento;
         this.plan = plan;
         this.estado = estado;
         this.historialPagos = new ArrayList<>(); //inicializo el historial de pagos como una lista vacia
     }
 
-    public LocalDate getfechaIscripcion() {
-        return fechaIscripcion;
+    public LocalDate getFechaInscripcion() {
+        return fechaInscripcion;
     }
 
-    public void setfechaIscripcion(LocalDate fechaIscripcion) {
-        this.fechaIscripcion = fechaIscripcion;
+    public void setFechaInscripcion(LocalDate fechaInscripcion) {
+        this.fechaInscripcion = fechaInscripcion;
     }
 
-    public LocalDate getfechaVencimiento() {
+    public LocalDate getFechaVencimiento() {
         return fechaVencimiento;
     }
 
-    public void setfechaVencimiento(LocalDate fechaVencimiento) {
+    public void setFechaVencimiento(LocalDate fechaVencimiento) {
         this.fechaVencimiento = fechaVencimiento;
     }
 

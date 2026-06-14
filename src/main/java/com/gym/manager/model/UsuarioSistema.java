@@ -2,6 +2,8 @@ package com.gym.manager.model;
 
 import java.time.LocalDateTime;
 
+import com.gym.manager.model.enums.RolUsuario;
+
 /**
  * Clase modelo que representa a un usuario con acceso al sistema (Login).
  * Mapea directamente con la tabla 'UsuarioSistema' de la base de datos.
