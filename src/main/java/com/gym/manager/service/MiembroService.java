@@ -54,7 +54,7 @@ public class MiembroService {
         miembroDAO.actualizar(miembro);
     }
 
-    // métodos que olo conectan la vista con el DAO sin validación extra
+    // métodos que solo conectan la vista con el DAO sin validación extra
 
     public void eliminarMiembro(int id) {
         miembroDAO.eliminar(id);
