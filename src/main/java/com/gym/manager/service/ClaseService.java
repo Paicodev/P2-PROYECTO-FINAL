@@ -24,7 +24,7 @@ public class ClaseService {
             throw new DatosInvalidosException("La duración debe ser mayor a 0.");
         }
 
-        // Si todo está bien, mandamos al DAO
+    
         claseDAO.guardar(clase);
     }
 
