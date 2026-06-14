@@ -5,6 +5,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+
+import com.gym.manager.service.ClaseService;
+
 import java.awt.*;
 
 /**
@@ -36,19 +39,24 @@ public class PanelClases extends JPanel {
     private JButton btnGuardar;
     private JButton btnLimpiar;
     private JButton btnEditar;
+    private ClaseService claseService;
 
     public PanelClases() {
         // Configuración del contenedor principal
         setBackground(BG_CENTRAL);
         setLayout(new BorderLayout(15, 15));
         setBorder(new EmptyBorder(20, 20, 20, 20));
-
         // 1. Panel de Formulario Superior (Alta / Edición)
         add(crearPanelFormulario(), BorderLayout.NORTH);
-
         // 2. Panel de la Grilla Central (JTable)
         add(crearPanelGrilla(), BorderLayout.CENTER);
+
+        inicializarEventos();
+        this.claseService = new ClaseService();
+        
     }
+
+    
 
     private JPanel crearPanelFormulario() {
         JPanel panelForm = new JPanel(new GridBagLayout());
@@ -162,6 +170,7 @@ public class PanelClases extends JPanel {
     private JTextField crearTextField() {
         JTextField tf = new JTextField();
         estilizarComponenteUI(tf);
+        tf.setCaretColor(Color.WHITE);
         return tf;
     }
 
@@ -194,6 +203,66 @@ public class PanelClases extends JPanel {
         p.add(c, gbc);
     }
 
+    private void inicializarEventos() {
+        btnGuardar.addActionListener(e -> guardarNuevaClase());
+        btnLimpiar.addActionListener(e -> limpiarFormulario());
+        
+        // TODO: Cargar el JComboBox de instructores desde la BD usando un InstructorDAO
+        // cargarInstructoresEnCombo();
+    }
+
+    private void guardarNuevaClase() {
+        try {
+            // 1. Capturamos los datos de los JTextFields
+            String nombre = txtNombre.getText();
+            String tipoStr = (String) comboTipo.getSelectedItem();
+            int duracion = Integer.parseInt(txtDuracion.getText());
+            int capacidad = 0;
+            
+            if ("GRUPAL".equals(tipoStr)) {
+                capacidad = Integer.parseInt(txtCapacidad.getText());
+            }
+
+            // TODO: Obtener el instructor real seleccionado del JComboBox
+            // Por ahora, como no hay InstructorDAO, pasamos null para que falle la validación 
+            // o crear un Instructor mock temporal.
+            com.gym.manager.model.Instructor instructorTemp = null; 
+
+            // 2. Instanciamos el modelo usando Polimorfismo
+            com.gym.manager.model.ClaseGimnasio nuevaClase;
+            
+            // Reemplazar null por la fecha parseada de txtHorario (LocalDateTime) cuando esté listo
+            java.time.LocalDateTime horario = java.time.LocalDateTime.now(); 
+
+            if ("GRUPAL".equals(tipoStr)) {
+                nuevaClase = new com.gym.manager.model.ClaseGrupal(0, nombre, instructorTemp, horario, duracion, true, capacidad);
+            } else {
+                nuevaClase = new com.gym.manager.model.ClasePersonal(0, nombre, instructorTemp, horario, duracion, true);
+            }
+
+            // 3. Enviamos al Servicio (MVC)
+            claseService.guardarClase(nuevaClase);
+
+            // 4. Feedback al usuario
+            JOptionPane.showMessageDialog(this, "Clase guardada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            limpiarFormulario();
+            // cargarGrilla(); // Refrescar la tabla
+
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "La duración y la capacidad deben ser números enteros.", "Error de formato", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+        private void limpiarFormulario() {
+        txtNombre.setText("");
+        txtHorario.setText("");
+        txtDuracion.setText("");
+        txtCapacidad.setText("");
+        comboTipo.setSelectedIndex(0);
+        comboInstructor.setSelectedIndex(0);
+    }
     // ── Getters Públicos para el Patrón MVC ──
     public JTable getTablaClases() { return tablaClases; }
     public DefaultTableModel getModeloTabla() { return modeloTabla; }
