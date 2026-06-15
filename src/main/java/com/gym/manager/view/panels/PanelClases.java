@@ -37,7 +37,8 @@ public class PanelClases extends JPanel {
     private DefaultTableModel modeloTabla;
     
     // Campos del Formulario
-    private JTextField txtNombre, txtHorario, txtDuracion, txtCapacidad;;
+    private JTextField txtNombre, txtDuracion, txtCapacidad;
+    private JSpinner spinnerHorario;
     private JComboBox<String> comboTipo;
     private JComboBox<Instructor> comboInstructor; // Cambiado a JComboBox de Instructor para cargar desde BD
     
@@ -89,8 +90,14 @@ public class PanelClases extends JPanel {
         comboTipo = new JComboBox<>(new String[]{"GRUPAL", "PERSONAL"});
         estilizarComponenteUI(comboTipo);
         
-        txtHorario = crearTextField();
-        txtHorario.setToolTipText("Formato: YYYY-MM-DD HH:MM:SS");
+        SpinnerDateModel modeloFecha = new SpinnerDateModel();
+        spinnerHorario = new JSpinner(modeloFecha);
+        JSpinner.DateEditor editorFecha = new JSpinner.DateEditor(spinnerHorario, "yyyy-MM-dd HH:mm");
+        spinnerHorario.setEditor(editorFecha);
+        
+        // Le aplicamos tu estilo oscuro
+        estilizarComponenteUI(editorFecha.getTextField());
+        editorFecha.getTextField().setCaretColor(Color.WHITE);
         
         txtDuracion = crearTextField();
         txtCapacidad = crearTextField();
@@ -107,7 +114,7 @@ public class PanelClases extends JPanel {
 
         // Fila 1
         colocarComponente(panelForm, crearLabel("Horario (Fecha/Hora):"), gbc, 0, 1, 1);
-        colocarComponente(panelForm, txtHorario, gbc, 1, 1, 1);
+        colocarComponente(panelForm, spinnerHorario, gbc, 1, 1, 1);
         colocarComponente(panelForm, crearLabel("Duración (Minutos):"), gbc, 2, 1, 1);
         colocarComponente(panelForm, txtDuracion, gbc, 3, 1, 1);
 
@@ -178,16 +185,46 @@ public class PanelClases extends JPanel {
     private void inicializarEventos() {
         btnGuardar.addActionListener(e -> guardarClase());
         btnLimpiar.addActionListener(e -> limpiarFormulario());
-
+        btnEditar.addActionListener(e -> editarClaseSeleccionada()); 
     }
-
         private void limpiarFormulario() {
         txtNombre.setText("");
-        txtHorario.setText("");
+        spinnerHorario.setValue(new java.util.Date()); 
         txtDuracion.setText("");
         txtCapacidad.setText("");
         comboTipo.setSelectedIndex(0);
-        comboInstructor.setSelectedIndex(0);
+        
+        // Evitar error si la lista de instructores está vacía
+        if (comboInstructor.getItemCount() > 0) {
+            comboInstructor.setSelectedIndex(0);
+        }
+    }
+    
+
+    // EDITAR CLASE SELECCIONADA
+    private void editarClaseSeleccionada() {
+        int fila = tablaClases.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Por favor, seleccione una clase de la grilla para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        //Extraemos los datos de la grilla y los pasamos al formulario
+        txtNombre.setText(modeloTabla.getValueAt(fila, 1).toString());
+        comboTipo.setSelectedItem(modeloTabla.getValueAt(fila, 2).toString());
+        
+        //Pasamos la fecha de la tabla al Spinner
+        java.time.LocalDateTime fechaGrilla = (java.time.LocalDateTime) modeloTabla.getValueAt(fila, 3);
+        java.util.Date fechaConvertida = java.util.Date.from(fechaGrilla.atZone(java.time.ZoneId.systemDefault()).toInstant());
+        spinnerHorario.setValue(fechaConvertida);
+
+        txtDuracion.setText(modeloTabla.getValueAt(fila, 4).toString());
+        
+        //Si es personal decía "N/A", lo dejamos vacío. Si es grupal, ponemos el número.
+        String cupo = modeloTabla.getValueAt(fila, 5).toString();
+        txtCapacidad.setText(cupo.equals("N/A") ? "" : cupo);
+
+        JOptionPane.showMessageDialog(this, "Datos cargados en el formulario.\n(Nota: Vuelve a seleccionar el Instructor antes de guardar).", "Modo Edición", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void cargarInstructores() {
@@ -230,7 +267,7 @@ public class PanelClases extends JPanel {
     private void guardarClase() {
         try {
             // Validaciones previas de campos vacíos en la UI
-            if (txtNombre.getText().trim().isEmpty() || txtHorario.getText().trim().isEmpty() || txtDuracion.getText().trim().isEmpty()) {
+            if (txtDuracion.getText().trim().isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Por favor, completa los campos obligatorios (Nombre, Horario y Duración).", "Campos incompletos", JOptionPane.WARNING_MESSAGE);
                 return;
             }
@@ -247,14 +284,10 @@ public class PanelClases extends JPanel {
             }
 
             // Parseamos la fecha del txtHorario con el formato esperado
-            java.time.LocalDateTime horario;
-            try {
-                java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                horario = java.time.LocalDateTime.parse(txtHorario.getText().trim(), formatter);
-            } catch (java.time.format.DateTimeParseException ex) {
-                JOptionPane.showMessageDialog(this, "El formato de fecha/hora es inválido.\nUse el formato: AAAA-MM-DD HH:MM:SS\nEjemplo: 2026-06-15 18:30:00", "Error de Fecha", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+            java.util.Date fechaSeleccionada = (java.util.Date) spinnerHorario.getValue();
+            java.time.LocalDateTime horario = fechaSeleccionada.toInstant()
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDateTime();
 
             // Evaluamos polimorfismo según el tipo seleccionado
             ClaseGimnasio nuevaClase;
