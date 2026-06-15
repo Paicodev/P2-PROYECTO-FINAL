@@ -13,8 +13,8 @@ public class InscripcionesDAO {
 
     public boolean registrar(Inscripciones inscripciones) {
         String sql = "INSERT INTO Inscripciones (fecha_inscripcion, asistio, Clases_idClases, Miembros_idMiembros) VALUES (?, ?, ?, ?)";
-        try (Connection con = DatabaseManager.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        Connection con = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setDate(1, Date.valueOf(inscripciones.getFechaInscripcion()));
             ps.setBoolean(2, inscripciones.isAsistio());
             ps.setInt(3, inscripciones.getClasesIdClases());

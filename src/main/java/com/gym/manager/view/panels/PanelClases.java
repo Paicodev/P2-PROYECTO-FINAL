@@ -236,33 +236,53 @@ public class PanelClases extends JPanel {
     }
 
     private void cargarClases() {
-    modeloTabla.setRowCount(0); // Vacía la tabla antes de recargar
-    
-    // NOTA: Si en tu ClaseService el método se llama 'listarClases()' o similar, cambialo acá:
-    List<ClaseGimnasio> lista = claseService.obtenerTodas(); 
-    
-    for (ClaseGimnasio clase : lista) {
-        // Manejo de polimorfismo para el cupo
-        String cupo = (clase instanceof ClaseGrupal) ? String.valueOf(((ClaseGrupal) clase).getCapacidadMax()) : "N/A";
+        // Implementación de SwingWorker para actualizar la tabla de forma asíncrona (En vivo)
+        SwingWorker<List<ClaseGimnasio>, Void> worker = new SwingWorker<List<ClaseGimnasio>, Void>() {
+            
+            @Override
+            protected List<ClaseGimnasio> doInBackground() throws Exception {
+                // Esto se ejecuta en un hilo secundario para no congelar la pantalla
+                return claseService.obtenerTodas(); 
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    List<ClaseGimnasio> lista = get();
+                    modeloTabla.setRowCount(0); // Vacía la tabla antes de recargar
+                    
+                    for (ClaseGimnasio clase : lista) {
+                        // Manejo de polimorfismo para el cupo
+                        String cupo = (clase instanceof ClaseGrupal) ? String.valueOf(((ClaseGrupal) clase).getCapacidadMax()) : "N/A";
+                        
+                        // Formatear nombre del instructor
+                        String profeNombre = "Sin asignar";
+                        if (clase.getInstructor() != null) {
+                            profeNombre = clase.getInstructor().getNombre() + " " + clase.getInstructor().getApellido();
+                        }
+                        
+                        // Formateamos la fecha para que no aparezca la "T" fea del LocalDateTime
+                        String fechaFormateada = clase.getHorario().toString().replace("T", " ");
+                        
+                        // Agrega la fila a la grilla
+                        modeloTabla.addRow(new Object[]{
+                            clase.getIdClase(),
+                            clase.getNombre(),
+                            clase.getTipoClase(),
+                            fechaFormateada,
+                            clase.getDuracionMinutos(),
+                            cupo,
+                            profeNombre
+                        });
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(PanelClases.this, "Error al cargar las clases: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
         
-        // Formatear nombre del instructor
-        String profeNombre = "Sin asignar";
-        if (clase.getInstructor() != null) {
-            profeNombre = clase.getInstructor().getNombre() + " " + clase.getInstructor().getApellido();
-        }
-        
-        // Agrega la fila a la grilla
-        modeloTabla.addRow(new Object[]{
-            clase.getIdClase(),
-            clase.getNombre(),
-            clase.getTipoClase(),
-            clase.getHorario(),
-            clase.getDuracionMinutos(),
-            cupo,
-            profeNombre
-        });
+        worker.execute(); // Dispara el hilo
     }
-}
     //METODO PARA EL BOTON GUARDAR
     private void guardarClase() {
         try {

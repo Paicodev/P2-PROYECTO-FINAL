@@ -157,22 +157,37 @@ public class PanelPagos extends JPanel {
     }
 
     private void cargarDatosEnTabla() {
-        modeloTabla.setRowCount(0);
-        List<Pago> pagos = pagoDAO.obtenerTodos();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        SwingWorker<List<Pago>, Void> worker = new SwingWorker<List<Pago>, Void>() {
+            @Override
+            protected List<Pago> doInBackground() throws Exception {
+                return pagoDAO.obtenerTodos();
+            }
 
-        for (Pago p : pagos) {
-            Object[] fila = {
-                p.getId(),
-                p.getMiembro() != null ? p.getMiembro().getId() : "N/A",
-                p.getMonto(),
-                p.getFecha() != null ? p.getFecha().format(formatter) : "",
-                p.getTipo().name(),
-                p.getEstado().name(),
-                p.getDescripcion()
-            };
-            modeloTabla.addRow(fila);
-        }
+            @Override
+            protected void done() {
+                try {
+                    List<Pago> pagos = get();
+                    modeloTabla.setRowCount(0);
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+                    for (Pago p : pagos) {
+                        Object[] fila = {
+                            p.getId(),
+                            p.getMiembro() != null ? p.getMiembro().getId() : "N/A",
+                            p.getMonto(),
+                            p.getFecha() != null ? p.getFecha().format(formatter) : "",
+                            p.getTipo() != null ? p.getTipo().name() : "N/A",
+                            p.getEstado() != null ? p.getEstado().name() : "N/A",
+                            p.getDescripcion()
+                        };
+                        modeloTabla.addRow(fila);
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(PanelPagos.this, "Error al refrescar tabla: " + e.getMessage());
+                }
+            }
+        };
+        worker.execute();
     }
 
     private void registrarPago() {
