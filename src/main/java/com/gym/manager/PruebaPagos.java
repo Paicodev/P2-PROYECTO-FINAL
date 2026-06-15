@@ -1,11 +1,12 @@
 package com.gym.manager;
 
-import com.gym.manager.model.EstadoMiembro;
-import com.gym.manager.model.EstadoPago;
 import com.gym.manager.model.Miembro;
 import com.gym.manager.model.Pago;
 import com.gym.manager.model.TipoPago;
 import com.gym.manager.service.AlertaVencimientoService;
+import com.gym.manager.model.enums.EstadoMiembro;
+import com.gym.manager.model.enums.EstadoPago;
+import com.gym.manager.model.enums.TipoPago;
 import com.gym.manager.service.PagoService;
 import com.gym.manager.interfaces.Notificador;
 
