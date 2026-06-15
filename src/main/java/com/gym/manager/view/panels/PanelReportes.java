@@ -103,52 +103,55 @@ documento.open();
 documento.add(new Paragraph("REPORTE DE " + tipoReporte + " DEL GIMNASIO\n\n"));
 
 
-PdfPTable tablaPdf = new PdfPTable(2);
-tablaPdf.addCell(
-    new PdfPCell(
-        new Phrase(tipoReporte.equals("INGRESOS") 
-        ? "Tipo de Pago" 
-        : "Clase"))
-    );
-tablaPdf.addCell(new PdfPCell(
-    new Phrase(
-        tipoReporte.equals("INGRESOS") ?
-         "Total ($)"
-         : "Asistentes"))
-        );
+PdfPTable tablaPdf = new PdfPTable(3);
+            
+            if (tipoReporte.equals("INGRESOS")) {
+                tablaPdf.addCell(new PdfPCell(new Phrase("Fecha")));
+                tablaPdf.addCell(new PdfPCell(new Phrase("Socio (DNI)")));
+                tablaPdf.addCell(new PdfPCell(new Phrase("Monto ($)")));
+            } else {
+                tablaPdf.addCell(new PdfPCell(new Phrase("Clase")));
+                tablaPdf.addCell(new PdfPCell(new Phrase("Socio Asistente")));
+                tablaPdf.addCell(new PdfPCell(new Phrase("Fecha Inscripción")));
+            }
 
-// Conexión JDBC para traer los datos
-Connection conn = DatabaseManager.getInstance().getConnection();
-String sql = "";
+            Connection conn = DatabaseManager.getInstance().getConnection();
+            String sql = "";
 
-if (tipoReporte.equals("INGRESOS")) {
+            if (tipoReporte.equals("INGRESOS")) {
+                // Consulta detallada de ingresos (Uniendo Pagos con Miembros y Persona)
+                sql = "SELECT p.fecha_pago, per.dni, per.nombre, per.apellido, p.monto " +
+                      "FROM Pagos p " +
+                      "JOIN Miembros m ON p.Miembros_idMiembros = m.idMiembros " +
+                      "JOIN Persona per ON m.Persona_idPersona = per.idPersona " +
+                      "WHERE p.estado = 'PAGADO' ORDER BY p.fecha_pago DESC";
+            } else {
+                // Consulta detallada de asistencia (Uniendo Inscripciones con Clases, Miembros y Persona)
+                sql = "SELECT c.nombre as clase_nombre, per.nombre as socio_nom, per.apellido as socio_ape, i.fecha_inscripcion " +
+                      "FROM Inscripciones i " +
+                      "JOIN Clases c ON i.Clases_idClases = c.idClases " +
+                      "JOIN Miembros m ON i.Miembros_idMiembros = m.idMiembros " +
+                      "JOIN Persona per ON m.Persona_idPersona = per.idPersona " +
+                      "ORDER BY c.nombre ASC";
+            }
 
-sql = "SELECT tipo, SUM(monto) AS resultado " +
-"FROM Pagos " +
-"WHERE estado = 'PAGADO' " +
-"GROUP BY tipo";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql);
+                 ResultSet rs = pstmt.executeQuery()) {
 
-} else {
+                while (rs.next()) {
+                    if (tipoReporte.equals("INGRESOS")) {
+                        tablaPdf.addCell(rs.getDate("fecha_pago").toString());
+                        tablaPdf.addCell(rs.getString("nombre") + " " + rs.getString("apellido") + " (" + rs.getString("dni") + ")");
+                        tablaPdf.addCell("$" + rs.getString("monto"));
+                    } else {
+                        tablaPdf.addCell(rs.getString("clase_nombre"));
+                        tablaPdf.addCell(rs.getString("socio_nom") + " " + rs.getString("socio_ape"));
+                        tablaPdf.addCell(rs.getDate("fecha_inscripcion").toString());
+                    }
+                }
+            }
 
-sql = "SELECT c.nombre, COUNT(i.idInscripciones) AS resultado " +
-"FROM Clases c " +
-"JOIN Inscripciones i " +
-"ON c.idClases = i.Clases_idClases " +
-"WHERE i.asistio = 1 " +
-"GROUP BY c.idClases";
-}
-
-try (PreparedStatement pstmt = conn.prepareStatement(sql);
-ResultSet rs = pstmt.executeQuery()) {
-
-// Llenamos la tabla del PDF con los resultados de la base de datos
-while (rs.next()) {
-tablaPdf.addCell(rs.getString(1));
-tablaPdf.addCell(rs.getString("resultado"));
-}
-}
-
-documento.add(tablaPdf);
+            documento.add(tablaPdf);
 documento.close();
 
 JOptionPane.showMessageDialog(this, "PDF de " + 
