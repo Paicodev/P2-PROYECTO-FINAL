@@ -7,6 +7,7 @@ import com.gym.manager.view.panels.PanelClases;
 import com.gym.manager.view.panels.PanelReportes;
 import com.gym.manager.view.panels.PanelMiembros;
 import com.gym.manager.view.panels.PanelPlan;
+import com.gym.manager.view.panels.PanelPagos;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -212,7 +213,8 @@ public class VentanaPrincipal extends JFrame {
         PanelClases panelClases = new PanelClases();
         panelCentral.add(panelClases, "inscripciones");
 
-        // TODO → panelCentral.add(new PanelPagos(), "pagos");
+        PanelPagos panelPagos = new PanelPagos();
+        panelCentral.add(panelPagos, "pagos");
 
         panelCentral.add(new PanelReportes(), "reportes");
 
