@@ -138,16 +138,34 @@ PdfPTable tablaPdf = new PdfPTable(3);
             try (PreparedStatement pstmt = conn.prepareStatement(sql);
                  ResultSet rs = pstmt.executeQuery()) {
 
+                double totalIngresos = 0.0; // Variable para sumar el total
+
+                // Llenamos la tabla del PDF con los resultados de la base de datos
                 while (rs.next()) {
                     if (tipoReporte.equals("INGRESOS")) {
+                        double monto = rs.getDouble("monto");
+                        totalIngresos += monto; // Vamos sumando al total general
+                        
                         tablaPdf.addCell(rs.getDate("fecha_pago").toString());
                         tablaPdf.addCell(rs.getString("nombre") + " " + rs.getString("apellido") + " (" + rs.getString("dni") + ")");
-                        tablaPdf.addCell("$" + rs.getString("monto"));
+                        tablaPdf.addCell(String.format("$%.2f", monto));
                     } else {
                         tablaPdf.addCell(rs.getString("clase_nombre"));
                         tablaPdf.addCell(rs.getString("socio_nom") + " " + rs.getString("socio_ape"));
                         tablaPdf.addCell(rs.getDate("fecha_inscripcion").toString());
                     }
+                }
+
+                // --- AGREGAMOS LA FILA DE TOTAL SOLO SI ES REPORTE DE INGRESOS ---
+                if (tipoReporte.equals("INGRESOS")) {
+                    PdfPCell celdaTextoTotal = new PdfPCell(new Phrase("TOTAL INGRESOS:"));
+                    celdaTextoTotal.setColspan(2); // Ocupa el espacio de 2 columnas (Fecha y Socio)
+                    celdaTextoTotal.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_RIGHT); // Alineamos a la derecha
+                    
+                    PdfPCell celdaMontoTotal = new PdfPCell(new Phrase(String.format("$%.2f", totalIngresos)));
+                    
+                    tablaPdf.addCell(celdaTextoTotal);
+                    tablaPdf.addCell(celdaMontoTotal);
                 }
             }
 
