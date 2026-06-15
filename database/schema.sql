@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Instructores` (
 ) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `mydb`.`Clases`
+-- Table `mydb`.`Clases` (MODIFICADA CON CLAVE FORÁNEA)
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mydb`.`Clases` (
   `idClases` INT NOT NULL AUTO_INCREMENT,
@@ -93,7 +93,14 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Clases` (
   `duracion_minutos` INT NULL,
   `capacidad_max` INT NULL,
   `activo` TINYINT NULL DEFAULT 1,
-  PRIMARY KEY (`idClases`)
+  `Instructores_idInstructores` INT NOT NULL, -- Nueva columna FK
+  PRIMARY KEY (`idClases`),
+  INDEX `fk_Clases_Instructores1_idx` (`Instructores_idInstructores` ASC),
+  CONSTRAINT `fk_Clases_Instructores1`
+    FOREIGN KEY (`Instructores_idInstructores`)
+    REFERENCES `mydb`.`Instructores` (`idInstructores`)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -162,4 +169,5 @@ CREATE TABLE IF NOT EXISTS `mydb`.`UsuarioSistema` (
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;--
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
