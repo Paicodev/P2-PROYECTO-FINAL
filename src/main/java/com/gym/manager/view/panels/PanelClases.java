@@ -47,7 +47,10 @@ public class PanelClases extends JPanel {
     private JButton btnGuardar;
     private JButton btnLimpiar;
     private JButton btnEditar;
+    private JButton btnEliminar;
+    private int idClaseEdicion = -1; //
     private ClaseService claseService;
+    private ClaseDAO claseDAO = new ClaseDAO();
 
     public PanelClases() {
         this.claseService = new ClaseService();
@@ -176,6 +179,12 @@ public class PanelClases extends JPanel {
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         panelTabla.add(scrollPane, BorderLayout.CENTER);
 
+        JPanel panelBotonesGrilla = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        panelBotonesGrilla.setBackground(BG_CENTRAL);
+        btnEliminar = crearBoton("Eliminar Seleccionada", new Color(180, 50, 50));
+        btnEliminar.addActionListener(e -> eliminarClaseSeleccionada());
+        panelBotonesGrilla.add(btnEliminar);
+        panelTabla.add(panelBotonesGrilla, BorderLayout.SOUTH);
         return panelTabla;
         
     }
@@ -206,8 +215,10 @@ public class PanelClases extends JPanel {
         int fila = tablaClases.getSelectedRow();
         if (fila == -1) {
             JOptionPane.showMessageDialog(this, "Por favor, seleccione una clase de la grilla para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            
             return;
         }
+        idClaseEdicion = (int) tablaClases.getValueAt(fila, 0);
 
         //Extraemos los datos de la grilla y los pasamos al formulario
         txtNombre.setText(modeloTabla.getValueAt(fila, 1).toString());
@@ -322,8 +333,15 @@ public class PanelClases extends JPanel {
                 nuevaClase = new ClasePersonal(0, nombre, profe, horario, duracion, true);
             }
 
-            // Enviamos al servicio para impactar en la BD
-            claseService.guardarClase(nuevaClase);
+            if (idClaseEdicion == -1) {
+                claseService.guardarClase(nuevaClase); 
+            } else {
+
+                nuevaClase.setIdClase(idClaseEdicion); // Le ponemos el ID viejo
+                
+                claseDAO.actualizar(nuevaClase); // Se actualiza
+                idClaseEdicion = -1; // Reseteamos
+            }
 
             JOptionPane.showMessageDialog(this, "Clase guardada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             limpiarFormulario();
@@ -342,4 +360,31 @@ public class PanelClases extends JPanel {
     private void estilizarComponenteUI(JComponent c) { c.setBackground(BG_INPUTS); c.setForeground(TEXTO_BLANCO); c.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(60, 80, 95)), new EmptyBorder(5,5,5,5))); }
     private JButton crearBoton(String texto, Color c) { JButton b = new JButton(texto); b.setFont(new Font("Segoe UI", Font.BOLD, 13)); b.setBackground(c); b.setForeground(Color.WHITE); b.setFocusPainted(false); return b; }
     private void colocarComponente(JPanel p, Component c, GridBagConstraints gbc, int x, int y, int w) { gbc.gridx = x; gbc.gridy = y; gbc.gridwidth = w; gbc.weightx = (x % 2 != 0) ? 1.0 : 0.0; p.add(c, gbc); }
+
+    private void eliminarClaseSeleccionada() {
+        int fila = tablaClases.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione una clase para eliminar.");
+            return;
+        }
+        int id = (int) tablaClases.getValueAt(fila, 0);
+        if (JOptionPane.showConfirmDialog(this, "¿Seguro que desea eliminar esta clase?") == JOptionPane.YES_OPTION) {
+            try {
+                claseDAO.eliminar(id);
+                cargarClases();
+                JOptionPane.showMessageDialog(this, "Clase eliminada.");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
+   @Override
+    public void setVisible(boolean aFlag) {
+        super.setVisible(aFlag);
+        if (aFlag) {
+            cargarInstructores(); // Recarga los profes nuevos del BD
+            cargarClases();       // Refresca la grilla por las dudas
+        }
+    }
 }

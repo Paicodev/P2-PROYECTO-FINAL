@@ -122,7 +122,8 @@ public class VentanaPrincipal extends JFrame {
         // ── Botones de navegación ──
         agregarBotonMenu(panelLateral, "Miembros y Planes",      "miembros");
         agregarBotonMenu(panelLateral, "Planes de Entrenamiento", "planes");
-        agregarBotonMenu(panelLateral, "Inscripciones",          "inscripciones");
+        agregarBotonMenu(panelLateral, "Clases",          "clases");
+        agregarBotonMenu(panelLateral, "Inscripciones",   "inscripciones");
         agregarBotonMenu(panelLateral, "Registro de Pagos",      "pagos");
 
         // Reportes solo para ADMIN → control de sesión por rol
@@ -207,7 +208,10 @@ public class VentanaPrincipal extends JFrame {
         panelCentral.add(new PanelInstructores(), "instructores");
 
         PanelClases panelClases = new PanelClases();
-        panelCentral.add(panelClases, "inscripciones");
+        panelCentral.add(panelClases, "clases");
+
+        PanelInscripciones panelInscripciones = new PanelInscripciones();
+        panelCentral.add(panelInscripciones, "inscripciones");
 
         PanelPagos panelPagos = new PanelPagos();
         panelCentral.add(panelPagos, "pagos");
