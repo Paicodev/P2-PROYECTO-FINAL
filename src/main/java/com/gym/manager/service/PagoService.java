@@ -71,7 +71,9 @@ public class PagoService {
         } catch (Exception e) {
             // Rollback: Si algo falló, deshacemos TODO lo que se haya intentado guardar
             try { 
+                if(!conn.getAutoCommit()){
                 conn.rollback(); 
+                }
             } catch (SQLException ex) { 
                 System.err.println("Error GRAVE al intentar revertir la transacción: " + ex.getMessage());
             }
@@ -79,7 +81,9 @@ public class PagoService {
         } finally {
             // Restauramos la conexión a su estado original
             try { 
+                if (!conn.getAutoCommit()) {
                 conn.setAutoCommit(true); 
+                }
             } catch (SQLException ex) { 
                 System.err.println("Error al restaurar AutoCommit: " + ex.getMessage());
             }

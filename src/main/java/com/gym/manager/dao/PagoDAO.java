@@ -25,7 +25,8 @@ public class PagoDAO implements DAO<Pago> {
     @Override
     public void guardar(Pago pago) {
         // 2. Preparamos el SQL con "?" para evitar inyección SQL (Seguridad)
-        String sql = "INSERT INTO Pagos (Miembros_idMiembros, monto, fecha_pago, tipo, estado, descripcion) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Pagos (Miembros_idMiembros, monto, fecha_pago, tipo, estado, descripcion) " +
+                     "VALUES ((SELECT idMiembros FROM Miembros WHERE Persona_idPersona = ?), ?, ?, ?, ?, ?)";
         
         try (PreparedStatement stmt = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             
