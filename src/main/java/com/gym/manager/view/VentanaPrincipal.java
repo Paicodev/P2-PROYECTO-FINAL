@@ -126,13 +126,13 @@ public class VentanaPrincipal extends JFrame {
         // ── Botones de navegación ──
         agregarBotonMenu(panelLateral, "Miembros y Planes",      "miembros");
         agregarBotonMenu(panelLateral, "Planes de Entrenamiento", "planes");
-        agregarBotonMenu(panelLateral, "Instructores",  "instructores");
         agregarBotonMenu(panelLateral, "Inscripciones",          "inscripciones");
         agregarBotonMenu(panelLateral, "Registro de Pagos",      "pagos");
 
         // Reportes solo para ADMIN → control de sesión por rol
         if ("ADMIN".equalsIgnoreCase(rolUsuario)) {
             agregarBotonMenu(panelLateral, "Reportes", "reportes");
+            agregarBotonMenu(panelLateral, "Gestión de Instructores", "instructores");
         }
 
         // ── Botón logout empujado al fondo ──
