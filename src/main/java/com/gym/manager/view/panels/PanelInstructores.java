@@ -170,7 +170,10 @@ public class PanelInstructores extends JPanel {
         JLabel l = new JLabel(texto); l.setForeground(TEXTO_GRIS); l.setFont(new Font("Segoe UI", Font.BOLD, 12)); return l;
     }
     private JTextField crearTextField() {
-        JTextField t = new JTextField(); t.setBackground(BG_INPUTS); t.setForeground(TEXTO_BLANCO);
+        JTextField t = new JTextField(); 
+        t.setBackground(BG_INPUTS); 
+        t.setForeground(TEXTO_BLANCO);
+        t.setCaretColor(Color.WHITE);
         t.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(60, 80, 95)), new EmptyBorder(5,5,5,5)));
         return t;
     }
