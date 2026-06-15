@@ -6,7 +6,16 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
+import com.gym.manager.dao.ClaseDAO;
+import com.gym.manager.dao.InstructorDAO;
+import com.gym.manager.exceptions.ConexionBDException;
+import com.gym.manager.model.Instructor;
+import com.gym.manager.model.ClaseGimnasio;
+import com.gym.manager.model.ClaseGrupal;
+import com.gym.manager.model.ClasePersonal;
 import com.gym.manager.service.ClaseService;
+
+import java.util.List;
 
 import java.awt.*;
 
@@ -28,13 +37,11 @@ public class PanelClases extends JPanel {
     private DefaultTableModel modeloTabla;
     
     // Campos del Formulario
-    private JTextField txtNombre;
+    private JTextField txtNombre, txtHorario, txtDuracion, txtCapacidad;;
     private JComboBox<String> comboTipo;
-    private JTextField txtHorario;
-    private JTextField txtDuracion;
-    private JTextField txtCapacidad;
-    private JComboBox<String> comboInstructor; // Se llenará dinámicamente desde la BD
+    private JComboBox<Instructor> comboInstructor; // Cambiado a JComboBox de Instructor para cargar desde BD
     
+    private InstructorDAO instructorDAO;
     // Botones
     private JButton btnGuardar;
     private JButton btnLimpiar;
@@ -42,6 +49,8 @@ public class PanelClases extends JPanel {
     private ClaseService claseService;
 
     public PanelClases() {
+        this.claseService = new ClaseService();
+        this.instructorDAO = new InstructorDAO();
         // Configuración del contenedor principal
         setBackground(BG_CENTRAL);
         setLayout(new BorderLayout(15, 15));
@@ -52,8 +61,8 @@ public class PanelClases extends JPanel {
         add(crearPanelGrilla(), BorderLayout.CENTER);
 
         inicializarEventos();
-        this.claseService = new ClaseService();
         
+        cargarClases();
     }
 
     
@@ -65,7 +74,7 @@ public class PanelClases extends JPanel {
         // Bordes personalizados con tipografía y colores del tema
         TitledBorder bordeTitulo = BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(50, 70, 80), 1), 
-                " Gestión de Clases e Instructores "
+                " Gestión de Clases"
         );
         bordeTitulo.setTitleColor(ACENTO_TURQUESA);
         bordeTitulo.setTitleFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -86,7 +95,8 @@ public class PanelClases extends JPanel {
         txtDuracion = crearTextField();
         txtCapacidad = crearTextField();
         
-        comboInstructor = new JComboBox<>(new String[]{"Seleccionar Instructor...", "Profe Gimnasio (ID: 1)"});
+        comboInstructor = new JComboBox<>();
+        cargarInstructores(); // Cargar instructores desde la BD
         estilizarComponenteUI(comboInstructor);
 
         // Fila 0
@@ -128,7 +138,9 @@ public class PanelClases extends JPanel {
         return panelForm;
     }
 
-    private JScrollPane crearPanelGrilla() {
+    private JPanel crearPanelGrilla() {
+        JPanel panelTabla = new JPanel(new BorderLayout());
+        panelTabla.setBackground(BG_CENTRAL);
         String[] columnas = {"ID", "Clase", "Tipo", "Horario", "Duración (min)", "Cupo Máx", "Instructor"};
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
@@ -140,7 +152,7 @@ public class PanelClases extends JPanel {
         tablaClases = new JTable(modeloTabla);
         tablaClases.setBackground(BG_FORMULARIO);
         tablaClases.setForeground(TEXTO_BLANCO);
-        tablaClases.setGridColor(new Color(50, 70, 80));
+        //tablaClases.setGridColor(new Color(50, 70, 80));
         tablaClases.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         tablaClases.setRowHeight(25);
         tablaClases.setSelectionBackground(ACENTO_TURQUESA);
@@ -155,104 +167,18 @@ public class PanelClases extends JPanel {
         JScrollPane scrollPane = new JScrollPane(tablaClases);
         scrollPane.getViewport().setBackground(BG_CENTRAL);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        panelTabla.add(scrollPane, BorderLayout.CENTER);
 
-        return scrollPane;
+        return panelTabla;
+        
     }
 
-    // ── Métodos Auxiliares de Estilización  ──
-    private JLabel crearLabel(String texto) {
-        JLabel label = new JLabel(texto);
-        label.setForeground(TEXTO_GRIS);
-        label.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        return label;
-    }
-
-    private JTextField crearTextField() {
-        JTextField tf = new JTextField();
-        estilizarComponenteUI(tf);
-        tf.setCaretColor(Color.WHITE);
-        return tf;
-    }
-
-    private void estilizarComponenteUI(JComponent c) {
-        c.setBackground(BG_INPUTS);
-        c.setForeground(TEXTO_BLANCO);
-        c.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        c.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(60, 80, 95), 1),
-                BorderFactory.createEmptyBorder(4, 6, 4, 6)
-        ));
-    }
-
-    private JButton crearBoton(String texto, Color colorFondo) {
-        JButton btn = new JButton(texto);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btn.setBackground(colorFondo);
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        return btn;
-    }
-
-    private void colocarComponente(JPanel p, Component c, GridBagConstraints gbc, int x, int y, int width) {
-        gbc.gridx = x;
-        gbc.gridy = y;
-        gbc.gridwidth = width;
-        gbc.weightx = (x % 2 != 0) ? 1.0 : 0.0;
-        p.add(c, gbc);
-    }
+    
 
     private void inicializarEventos() {
-        btnGuardar.addActionListener(e -> guardarNuevaClase());
+        btnGuardar.addActionListener(e -> guardarClase());
         btnLimpiar.addActionListener(e -> limpiarFormulario());
-        
-        // TODO: Cargar el JComboBox de instructores desde la BD usando un InstructorDAO
-        // cargarInstructoresEnCombo();
-    }
 
-    private void guardarNuevaClase() {
-        try {
-            // 1. Capturamos los datos de los JTextFields
-            String nombre = txtNombre.getText();
-            String tipoStr = (String) comboTipo.getSelectedItem();
-            int duracion = Integer.parseInt(txtDuracion.getText());
-            int capacidad = 0;
-            
-            if ("GRUPAL".equals(tipoStr)) {
-                capacidad = Integer.parseInt(txtCapacidad.getText());
-            }
-
-            // TODO: Obtener el instructor real seleccionado del JComboBox
-            // Por ahora, como no hay InstructorDAO, pasamos null para que falle la validación 
-            // o crear un Instructor mock temporal.
-            com.gym.manager.model.Instructor instructorTemp = null; 
-
-            // 2. Instanciamos el modelo usando Polimorfismo
-            com.gym.manager.model.ClaseGimnasio nuevaClase;
-            
-            // Reemplazar null por la fecha parseada de txtHorario (LocalDateTime) cuando esté listo
-            java.time.LocalDateTime horario = java.time.LocalDateTime.now(); 
-
-            if ("GRUPAL".equals(tipoStr)) {
-                nuevaClase = new com.gym.manager.model.ClaseGrupal(0, nombre, instructorTemp, horario, duracion, true, capacidad);
-            } else {
-                nuevaClase = new com.gym.manager.model.ClasePersonal(0, nombre, instructorTemp, horario, duracion, true);
-            }
-
-            // 3. Enviamos al Servicio (MVC)
-            claseService.guardarClase(nuevaClase);
-
-            // 4. Feedback al usuario
-            JOptionPane.showMessageDialog(this, "Clase guardada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            limpiarFormulario();
-            // cargarGrilla(); // Refrescar la tabla
-
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "La duración y la capacidad deben ser números enteros.", "Error de formato", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
     }
 
         private void limpiarFormulario() {
@@ -263,16 +189,104 @@ public class PanelClases extends JPanel {
         comboTipo.setSelectedIndex(0);
         comboInstructor.setSelectedIndex(0);
     }
+
+    private void cargarInstructores() {
+        comboInstructor.removeAllItems();
+        List<Instructor> lista = instructorDAO.obtenerTodos();
+        for (Instructor inst : lista) {
+            comboInstructor.addItem(inst);
+        }
+    }
+
+    private void cargarClases() {
+    modeloTabla.setRowCount(0); // Vacía la tabla antes de recargar
+    
+    // NOTA: Si en tu ClaseService el método se llama 'listarClases()' o similar, cambialo acá:
+    List<ClaseGimnasio> lista = claseService.obtenerTodas(); 
+    
+    for (ClaseGimnasio clase : lista) {
+        // Manejo de polimorfismo para el cupo
+        String cupo = (clase instanceof ClaseGrupal) ? String.valueOf(((ClaseGrupal) clase).getCapacidadMax()) : "N/A";
+        
+        // Formatear nombre del instructor
+        String profeNombre = "Sin asignar";
+        if (clase.getInstructor() != null) {
+            profeNombre = clase.getInstructor().getNombre() + " " + clase.getInstructor().getApellido();
+        }
+        
+        // Agrega la fila a la grilla
+        modeloTabla.addRow(new Object[]{
+            clase.getIdClase(),
+            clase.getNombre(),
+            clase.getTipoClase(),
+            clase.getHorario(),
+            clase.getDuracionMinutos(),
+            cupo,
+            profeNombre
+        });
+    }
+}
+    //METODO PARA EL BOTON GUARDAR
+    private void guardarClase() {
+        try {
+            // Validaciones previas de campos vacíos en la UI
+            if (txtNombre.getText().trim().isEmpty() || txtHorario.getText().trim().isEmpty() || txtDuracion.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Por favor, completa los campos obligatorios (Nombre, Horario y Duración).", "Campos incompletos", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String nombre = txtNombre.getText().trim();
+            String tipoStr = (String) comboTipo.getSelectedItem();
+            int duracion = Integer.parseInt(txtDuracion.getText().trim());
+            
+            // Recuperamos el objeto Instructor REAL seleccionado en el JComboBox
+            Instructor profe = (Instructor) comboInstructor.getSelectedItem();
+            if (profe == null) {
+                JOptionPane.showMessageDialog(this, "Debe registrar y seleccionar un instructor válido.", "Instructor faltante", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Parseamos la fecha del txtHorario con el formato esperado
+            java.time.LocalDateTime horario;
+            try {
+                java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                horario = java.time.LocalDateTime.parse(txtHorario.getText().trim(), formatter);
+            } catch (java.time.format.DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(this, "El formato de fecha/hora es inválido.\nUse el formato: AAAA-MM-DD HH:MM:SS\nEjemplo: 2026-06-15 18:30:00", "Error de Fecha", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Evaluamos polimorfismo según el tipo seleccionado
+            ClaseGimnasio nuevaClase;
+            if ("GRUPAL".equals(tipoStr)) {
+                if (txtCapacidad.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Las clases grupales requieren definir una Capacidad Máxima.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                int capacidad = Integer.parseInt(txtCapacidad.getText().trim());
+                nuevaClase = new ClaseGrupal(0, nombre, profe, horario, duracion, true, capacidad);
+            } else {
+                nuevaClase = new ClasePersonal(0, nombre, profe, horario, duracion, true);
+            }
+
+            // Enviamos al servicio para impactar en la BD
+            claseService.guardarClase(nuevaClase);
+
+            JOptionPane.showMessageDialog(this, "Clase guardada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            limpiarFormulario();
+            cargarClases();
+
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "La duración y la capacidad deben ser valores numéricos enteros.", "Error de formato", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            throw new ConexionBDException("Error al guardar la nueva clase en la base de datos: " + e.getMessage(), e);
+        }
+    }
+
     // ── Getters Públicos para el Patrón MVC ──
-    public JTable getTablaClases() { return tablaClases; }
-    public DefaultTableModel getModeloTabla() { return modeloTabla; }
-    public JTextField getTxtNombre() { return txtNombre; }
-    public JComboBox<String> getComboTipo() { return comboTipo; }
-    public JTextField getTxtHorario() { return txtHorario; }
-    public JTextField getTxtDuracion() { return txtDuracion; }
-    public JTextField getTxtCapacidad() { return txtCapacidad; }
-    public JComboBox<String> getComboInstructor() { return comboInstructor; }
-    public JButton getBtnGuardar() { return btnGuardar; }
-    public JButton getBtnLimpiar() { return btnLimpiar; }
-    public JButton getBtnEditar() { return btnEditar; }
+    private JLabel crearLabel(String texto) { JLabel l = new JLabel(texto); l.setForeground(TEXTO_GRIS); l.setFont(new Font("Segoe UI", Font.BOLD, 12)); return l; }
+    private JTextField crearTextField() { JTextField t = new JTextField(); estilizarComponenteUI(t); t.setCaretColor(Color.WHITE); return t; }
+    private void estilizarComponenteUI(JComponent c) { c.setBackground(BG_INPUTS); c.setForeground(TEXTO_BLANCO); c.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(60, 80, 95)), new EmptyBorder(5,5,5,5))); }
+    private JButton crearBoton(String texto, Color c) { JButton b = new JButton(texto); b.setFont(new Font("Segoe UI", Font.BOLD, 13)); b.setBackground(c); b.setForeground(Color.WHITE); b.setFocusPainted(false); return b; }
+    private void colocarComponente(JPanel p, Component c, GridBagConstraints gbc, int x, int y, int w) { gbc.gridx = x; gbc.gridy = y; gbc.gridwidth = w; gbc.weightx = (x % 2 != 0) ? 1.0 : 0.0; p.add(c, gbc); }
 }
