@@ -7,6 +7,7 @@ import com.gym.manager.view.panels.PanelClases;
 import com.gym.manager.view.panels.PanelReportes;
 import com.gym.manager.view.panels.PanelMiembros;
 import com.gym.manager.view.panels.PanelPlan;
+import com.gym.manager.view.panels.PanelInstructores;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -125,7 +126,7 @@ public class VentanaPrincipal extends JFrame {
         // ── Botones de navegación ──
         agregarBotonMenu(panelLateral, "Miembros y Planes",      "miembros");
         agregarBotonMenu(panelLateral, "Planes de Entrenamiento", "planes");
-        agregarBotonMenu(panelLateral, "Control de Asistencia",  "asistencia");
+        agregarBotonMenu(panelLateral, "Instructores",  "instructores");
         agregarBotonMenu(panelLateral, "Inscripciones",          "inscripciones");
         agregarBotonMenu(panelLateral, "Registro de Pagos",      "pagos");
 
@@ -207,7 +208,8 @@ public class VentanaPrincipal extends JFrame {
         PanelPlan panelPlan = new PanelPlan();
         panelCentral.add(panelPlan, "planes");
 
-        // TODO → panelCentral.add(new PanelAsistencia(), "asistencia");
+        PanelInstructores panelInstructores = new PanelInstructores();
+        panelCentral.add(panelInstructores, "instructores");
 
         PanelClases panelClases = new PanelClases();
         panelCentral.add(panelClases, "inscripciones");
