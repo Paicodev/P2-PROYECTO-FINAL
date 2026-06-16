@@ -231,7 +231,7 @@ public class PanelPagos extends JPanel {
         
         if (confirmacion == JOptionPane.YES_OPTION) {
             try {
-                pagoDAO.eliminar(idPago);
+                pagoService.eliminarPago(idPago);
                 cargarDatosEnTabla();
                 JOptionPane.showMessageDialog(this, "Pago eliminado.");
             } catch (Exception ex) {

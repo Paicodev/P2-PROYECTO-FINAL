@@ -37,6 +37,18 @@ public class PagoService {
         if (pago.getMiembro() == null) {
             throw new DatosInvalidosException("El pago debe estar asociado a un miembro válido.");
         }
+        
+        // Validacion para evitar pagos duplicados
+        if (pago.getTipo() == TipoPago.MENSUALIDAD) {
+            LocalDate vencimiento = pago.getMiembro().getFechaVencimiento();
+            if (vencimiento != null && vencimiento.isAfter(LocalDate.now())) {
+                throw new DatosInvalidosException("El miembro ya tiene su mensualidad al día. No puede abonar nuevamente hasta que venza (" + vencimiento + ").");
+            }
+        } else {
+            if (yaPagoEsteMes(pago.getMiembro().getId(), pago.getTipo(), pago.getFecha().toLocalDate())) {
+                throw new DatosInvalidosException("Operación rechazada: El miembro ya registró un pago de tipo " + pago.getTipo().name() + " este mes.");
+            }
+        }
 
         Connection conn = DatabaseManager.getInstance().getConnection();
         
@@ -93,5 +105,38 @@ public class PagoService {
                 System.err.println("Error al restaurar AutoCommit: " + ex.getMessage());
             }
         }
+    }
+
+    /**
+     * Elimina un registro de pago de la base de datos.
+     * 
+     * @param id El ID del pago a eliminar.
+     */
+    public void eliminarPago(int id) {
+        pagoDAO.eliminar(id);
+    }
+
+    /**
+     * Verifica si el miembro ya realizó un pago del mismo tipo en el mes actual.
+     */
+    private boolean yaPagoEsteMes(int idPersona, TipoPago tipo, LocalDate fechaPago) {
+        String sql = "SELECT COUNT(*) FROM Pagos p JOIN Miembros m ON p.Miembros_idMiembros = m.idMiembros " +
+                     "WHERE m.Persona_idPersona = ? AND p.tipo = ? AND MONTH(p.fecha_pago) = ? AND YEAR(p.fecha_pago) = ?";
+                     
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (java.sql.PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setInt(1, idPersona);
+            pst.setString(2, tipo.name());
+            pst.setInt(3, fechaPago.getMonthValue());
+            pst.setInt(4, fechaPago.getYear());
+            try (java.sql.ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al verificar pagos del mes: " + e.getMessage());
+        }
+        return false;
     }
 }
