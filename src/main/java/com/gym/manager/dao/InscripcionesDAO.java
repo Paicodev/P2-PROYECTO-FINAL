@@ -57,13 +57,17 @@ public class InscripcionesDAO {
                 }
             }
 
-            // 4. SI PASA TODAS LAS PRUEBAS, HACEMOS EL INSERT
-            String sqlInsert = "INSERT INTO Inscripciones (fecha_inscripcion, asistio, Clases_idClases, Miembros_idMiembros) VALUES (?, ?, ?, ?)";
+            // 4. SI PASA TODAS LAS PRUEBAS, HACEMOS EL INSERT (Con Subquery para traducir el ID)
+            String sqlInsert = "INSERT INTO Inscripciones (fecha_inscripcion, asistio, Clases_idClases, Miembros_idMiembros) " +
+                               "VALUES (?, ?, ?, (SELECT idMiembros FROM Miembros WHERE Persona_idPersona = ?))";
+            
             try (PreparedStatement ps = con.prepareStatement(sqlInsert)) {
                 ps.setDate(1, Date.valueOf(inscripciones.getFechaInscripcion()));
                 ps.setBoolean(2, inscripciones.isAsistio());
                 ps.setInt(3, inscripciones.getClasesIdClases());
-                ps.setInt(4, inscripciones.getMiembrosIdMiembros());
+                // Le pasamos el ID de la Persona, y MySQL se encarga de buscar su ID de Miembro
+                ps.setInt(4, inscripciones.getMiembrosIdMiembros()); 
+                
                 return ps.executeUpdate() > 0;
             }
 
