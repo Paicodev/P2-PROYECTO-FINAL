@@ -157,9 +157,13 @@ public class MiembroDAO implements DAO<Miembro> {
         String sqlMiembro = "UPDATE miembros SET fecha_vencimiento = ?, estado = ?, Planes_id_planes = ? WHERE Persona_idPersona = ?";
 
         Connection conn = DatabaseManager.getInstance().getConnection();
+        boolean autoCommitOriginal = true;
 
         try{
-            conn.setAutoCommit(false);
+            autoCommitOriginal = conn.getAutoCommit();
+            if (autoCommitOriginal) {
+                conn.setAutoCommit(false);
+            }
             try(PreparedStatement pstmtPersona = conn.prepareStatement(sqlPersona) ){
                 pstmtPersona.setString(1, miembro.getNombre());
                 pstmtPersona.setString(2, miembro.getApellido());
@@ -182,17 +186,19 @@ public class MiembroDAO implements DAO<Miembro> {
 
                 pstmtMiembro.executeUpdate();
             }
-            conn.commit();
+            if (autoCommitOriginal) {
+                conn.commit();
+            }
         } catch (SQLException e) {
             try {
-                conn.rollback();
+                if (autoCommitOriginal) conn.rollback();
             } catch (SQLException ex) {
                 System.out.println("Error al hacer rollback " + ex.getMessage());
             }
             System.out.println("Error al actualizar miembro " + e.getMessage());    
         } finally {
             try {
-                conn.setAutoCommit(true);
+                if (autoCommitOriginal) conn.setAutoCommit(true);
             } catch (SQLException e) {
                 System.out.println("Error al restaurar el auto commit " + e.getMessage());
             }

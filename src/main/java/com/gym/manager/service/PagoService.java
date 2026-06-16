@@ -60,9 +60,14 @@ public class PagoService {
                 
                 pago.getMiembro().setFechaVencimiento(nuevoVencimiento);
                 
-                // Actualizamos el miembro en la BD con su nueva fecha de vencimiento
-                MiembroDAO miembroDAO = new MiembroDAO();
-                miembroDAO.actualizar(pago.getMiembro());
+                // FIX ARQUITECTÓNICO: Hacemos el UPDATE directamente en esta transacción
+                // para no invocar a MiembroDAO y romper el estado de la Conexión.
+                String sqlUpdateVencimiento = "UPDATE Miembros SET fecha_vencimiento = ? WHERE Persona_idPersona = ?";
+                try (java.sql.PreparedStatement pst = conn.prepareStatement(sqlUpdateVencimiento)) {
+                    pst.setDate(1, java.sql.Date.valueOf(nuevoVencimiento));
+                    pst.setInt(2, pago.getMiembro().getId()); // ID de la persona
+                    pst.executeUpdate();
+                }
             }
 
             // Confirmamos la transacción (Todo salió perfecto, se aplican los cambios)
