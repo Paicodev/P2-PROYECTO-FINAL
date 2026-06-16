@@ -171,58 +171,262 @@ SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
+-- =====================================================
+-- INSERCIÓN DE DATOS DE PRUEBA
+-- =====================================================
+
 -- 1. PLANES
 INSERT INTO Planes (nombre_plan, duracion_meses, descripcion, precio_mensual) VALUES 
-('Plan Básico', 1, 'Acceso a sala de musculación', 15000.00),
-('Plan Full', 1, 'Musculación + Clases Grupales', 20000.00),
-('Plan Trimestral VIP', 3, 'Pase libre total por 3 meses', 50000.00);
+('Plan Básico', 1, 'Acceso a sala de musculación', 25000.00),
+('Plan Full', 1, 'Musculación + Clases Grupales', 35000.00),
+('Plan Trimestral VIP', 3, 'Pase libre total por 3 meses', 90000.00);
 
--- 2. PERSONAS (1 Admin, 1 Recep, 2 Instructores, 5 Miembros)
+-- 2. PERSONAS (1 Admin, 1 Recep, 4 Instructores, 55 Miembros con DNI aleatorios)
 INSERT INTO Persona (nombre, apellido, dni, email, telefono, tipo_persona, fecha_registro) VALUES 
-('Carlos', 'Gerente', '11111111', 'admin@fitbase.com', '2657111111', 'ADMIN', '2024-01-01'),
-('Ana', 'Recepcionista', '22222222', 'recepcion@fitbase.com', '2657222222', 'RECEPCIONISTA', '2024-01-02'),
-('Marcos', 'Trainer', '33333333', 'marcos@fitbase.com', '2657333333', 'INSTRUCTOR', '2024-01-10'),
-('Lucía', 'Fitness', '44444444', 'lucia@fitbase.com', '2657444444', 'INSTRUCTOR', '2024-01-15'),
-('Juan', 'Pérez', '55555555', 'juan@gmail.com', '2657555555', 'MIEMBRO', '2024-05-01'),
-('María', 'Gómez', '66666666', 'maria@gmail.com', '2657666666', 'MIEMBRO', '2024-05-15'),
-('Pedro', 'Díaz', '77777777', 'pedro@gmail.com', '2657777777', 'MIEMBRO', '2024-06-01'),
-('Sofía', 'Ruiz', '88888888', 'sofia@gmail.com', '2657888888', 'MIEMBRO', '2024-06-10'),
-('Luis', 'Sosa', '99999999', 'luis@gmail.com', '2657999999', 'MIEMBRO', '2024-06-12');
+-- Staff (idPersona: 1 y 2)
+('Carlos', 'Gerente', '29481023', 'admin@fitbase.com', '2657411111', 'ADMIN', '2024-01-01'),
+('Ana', 'Recepcionista', '34910294', 'recepcion@fitbase.com', '2657222222', 'RECEPCIONISTA', '2024-01-02'),
+-- Instructores (idPersona: 3 al 6)
+('Marcos', 'Trainer', '31524819', 'marcos@fitbase.com', '2657333333', 'INSTRUCTOR', '2024-01-10'),
+('Lucía', 'Fitness', '38401928', 'lucia@fitbase.com', '2657444444', 'INSTRUCTOR', '2024-01-15'),
+('Esteban', 'Barras', '35719203', 'esteban@fitbase.com', '2657555555', 'INSTRUCTOR', '2024-02-01'),
+('Valeria', 'Fuerza', '39148201', 'valeria@fitbase.com', '2657666666', 'INSTRUCTOR', '2024-02-10'),
+-- Miembros (idPersona: 7 al 61)
+('Juan', 'Pérez', '41284930', 'juan1@gmail.com', '265790101', 'MIEMBRO', '2024-04-28'),
+('María', 'Gómez', '43810293', 'maria2@gmail.com', '265790102', 'MIEMBRO', '2024-04-29'),
+('Pedro', 'Díaz', '40572913', 'pedro3@gmail.com', '265790103', 'MIEMBRO', '2024-04-30'),
+('Sofía', 'Ruiz', '42918304', 'sofia4@gmail.com', '265790104', 'MIEMBRO', '2024-05-01'),
+('Luis', 'Sosa', '44192039', 'luis5@gmail.com', '265790105', 'MIEMBRO', '2024-05-01'),
+('Ana', 'López', '41502938', 'ana6@gmail.com', '265790106', 'MIEMBRO', '2024-05-02'),
+('Carlos', 'Martínez', '43019284', 'carlos7@gmail.com', '265790107', 'MIEMBRO', '2024-05-02'),
+('Laura', 'García', '45281930', 'laura8@gmail.com', '265790108', 'MIEMBRO', '2024-05-02'),
+('Diego', 'Rodríguez', '39810293', 'diego9@gmail.com', '265790109', 'MIEMBRO', '2024-05-03'),
+('Elena', 'Fernández', '42193840', 'elena10@gmail.com', '265790110', 'MIEMBRO', '2024-05-03'),
+('Javier', 'Ponce', '40419284', 'javier11@gmail.com', '265790111', 'MIEMBRO', '2024-05-03'),
+('Paula', 'Molina', '44719284', 'paula12@gmail.com', '265790112', 'MIEMBRO', '2024-05-04'),
+('Andrés', 'Castro', '41392019', 'andres13@gmail.com', '265790113', 'MIEMBRO', '2024-05-04'),
+('Clara', 'Ortiz', '43619204', 'clara14@gmail.com', '265790114', 'MIEMBRO', '2024-05-04'),
+('Martín', 'Silva', '45910293', 'martin15@gmail.com', '265790115', 'MIEMBRO', '2024-05-05'),
+('Luciana', 'Ríos', '42194820', 'luciana16@gmail.com', '265790116', 'MIEMBRO', '2024-05-05'),
+('Gabriel', 'Romero', '40810293', 'gabriel17@gmail.com', '265790117', 'MIEMBRO', '2024-05-05'),
+('Micaela', 'Navarro', '44291039', 'micaela18@gmail.com', '265790118', 'MIEMBRO', '2024-05-06'),
+('Tomás', 'Torres', '41948203', 'tomas19@gmail.com', '265790119', 'MIEMBRO', '2024-05-06'),
+('Florencia', 'Acosta', '43291024', 'flor20@gmail.com', '265790120', 'MIEMBRO', '2024-05-06'),
+('Emiliano', 'Suárez', '40192840', 'emi21@gmail.com', '265790121', 'MIEMBRO', '2024-05-07'),
+('Valentina', 'Rojas', '45391029', 'valen22@gmail.com', '265790122', 'MIEMBRO', '2024-05-07'),
+('Nicolás', 'Giménez', '42810293', 'nico23@gmail.com', '265790123', 'MIEMBRO', '2024-05-07'),
+('Camila', 'Domínguez', '41492039', 'cami24@gmail.com', '265790124', 'MIEMBRO', '2024-05-08'),
+('Rodrigo', 'Blanco', '43519203', 'rodri25@gmail.com', '265790125', 'MIEMBRO', '2024-05-08'),
+('Julieta', 'Luna', '40619284', 'juli26@gmail.com', '265790126', 'MIEMBRO', '2024-05-08'),
+('Agustín', 'Paz', '44294810', 'agus27@gmail.com', '265790127', 'MIEMBRO', '2024-05-09'),
+('Milagros', 'Cruz', '42319284', 'mili28@gmail.com', '265790128', 'MIEMBRO', '2024-05-09'),
+('Facundo', 'Vega', '41294019', 'facu29@gmail.com', '265790129', 'MIEMBRO', '2024-05-09'),
+('Bárbara', 'Ibarra', '45910239', 'barbi30@gmail.com', '265790130', 'MIEMBRO', '2024-05-10'),
+('Lucas', 'Herrera', '43294811', 'lucas31@gmail.com', '265790131', 'MIEMBRO', '2024-05-15'),
+('Daniela', 'Medina', '40294822', 'dani32@gmail.com', '265790132', 'MIEMBRO', '2024-05-15'),
+('Matías', 'Arias', '44710294', 'mati33@gmail.com', '265790133', 'MIEMBRO', '2024-05-16'),
+('Agostina', 'Vidal', '41204928', 'agos34@gmail.com', '265790134', 'MIEMBRO', '2024-05-16'),
+('Gonzalo', 'Mendoza', '42319204', 'gonza35@gmail.com', '265790135', 'MIEMBRO', '2024-05-18'),
+('Antonella', 'Ramos', '45810293', 'anto36@gmail.com', '265790136', 'MIEMBRO', '2024-05-20'),
+('Federico', 'Sarmiento', '40194829', 'fede37@gmail.com', '265790137', 'MIEMBRO', '2024-05-22'),
+('Rocío', 'Iglesias', '43610294', 'rocio38@gmail.com', '265790138', 'MIEMBRO', '2024-05-25'),
+('Joaquín', 'Pinto', '41294810', 'joaco39@gmail.com', '265790139', 'MIEMBRO', '2024-05-28'),
+('Cinthia', 'Bravo', '44810294', 'cinthia40@gmail.com', '265790140', 'MIEMBRO', '2024-05-30'),
+('Santiago', 'Benítez', '42104928', 'santi41@gmail.com', '265790141', 'MIEMBRO', '2024-06-01'),
+('Mateo', 'Guzmán', '43910294', 'mateo42@gmail.com', '265790142', 'MIEMBRO', '2024-06-01'),
+('Ludmila', 'Cáceres', '45194820', 'ludmi43@gmail.com', '265790143', 'MIEMBRO', '2024-06-02'),
+('Patricio', 'Cardozo', '40819482', 'patro44@gmail.com', '265790144', 'MIEMBRO', '2024-06-02'),
+('Malena', 'Soria', '41940192', 'male45@gmail.com', '265790145', 'MIEMBRO', '2024-06-03'),
+('Iair', 'Franco', '44049281', 'iair46@gmail.com', '265790146', 'MIEMBRO', '2024-06-03'),
+('Bruno', 'Maldonado', '42849102', 'bruno47@gmail.com', '265790147', 'MIEMBRO', '2024-06-04'),
+('Paulina', 'Vargas', '43149204', 'pau48@gmail.com', '265790148', 'MIEMBRO', '2024-06-04'),
+('Leonel', 'Mendez', '46049182', 'leo49@gmail.com', '265790149', 'MIEMBRO', '2024-06-05'),
+('Abigail', 'Flores', '41940294', 'abi50@gmail.com', '265790150', 'MIEMBRO', '2024-06-05'),
+('Tobías', 'Aquino', '40249182', 'tobias51@gmail.com', '265790151', 'MIEMBRO', '2024-06-06'),
+('Justina', 'Páez', '44149204', 'justi52@gmail.com', '265790152', 'MIEMBRO', '2024-06-07'),
+('Ramiro', 'Leiva', '42940192', 'rami53@gmail.com', '265790153', 'MIEMBRO', '2024-06-08'),
+('Abril', 'Sancho', '43049182', 'abril54@gmail.com', '265790154', 'MIEMBRO', '2024-06-09'),
+('Ezequiel', 'Bustos', '45940294', 'eze55@gmail.com', '265790155', 'MIEMBRO', '2024-06-10');
 
--- 3. USUARIOS DEL SISTEMA (Contraseñas en texto plano '1234' para las pruebas)
+-- 3. USUARIOS DEL SISTEMA
 INSERT INTO UsuarioSistema (username, password_hash, rol, Persona_idPersona) VALUES 
 ('admin', '1234', 'ADMIN', 1),
 ('recepcion', '1234', 'RECEPCIONISTA', 2);
 
--- 4. INSTRUCTORES (Asociados a las personas 3 y 4)
+-- 4. INSTRUCTORES (Sueldos mensuales: Suma total de $1.300.000)
 INSERT INTO Instructores (especialidad, sueldo, Persona_idPersona) VALUES 
 ('Musculación y CrossFit', 350000.00, 3),
-('Yoga y Pilates', 300000.00, 4);
+('Yoga y Pilates', 300000.00, 4),
+('Calistenia Avanzada', 320000.00, 5),
+('Entrenamiento Funcional', 330000.00, 6);
 
--- 5. MIEMBROS (Asociados a las personas 5 a 9)
+-- 5. MIEMBROS (idMiembros: 1 al 55 vinculados a las personas correspondientes del 7 al 61)
 INSERT INTO Miembros (fecha_inscripcion, fecha_vencimiento, estado, Planes_id_planes, Persona_idPersona) VALUES 
-('2024-05-01', '2024-06-01', 'INACTIVO', 1, 5),
-('2024-05-15', '2024-08-15', 'ACTIVO', 3, 6),
-('2024-06-01', '2024-07-01', 'ACTIVO', 2, 7),
-('2024-06-10', '2024-07-10', 'ACTIVO', 2, 8),
-('2024-06-12', '2024-07-12', 'ACTIVO', 1, 9);
+-- Trimestrales VIP en Mayo (idMiembros: 1 al 10)
+('2024-05-01', '2024-08-01', 'ACTIVO', 3, 7), ('2024-05-01', '2024-08-01', 'ACTIVO', 3, 8),
+('2024-05-02', '2024-08-02', 'ACTIVO', 3, 9), ('2024-05-02', '2024-08-02', 'ACTIVO', 3, 10),
+('2024-05-03', '2024-08-03', 'ACTIVO', 3, 11), ('2024-05-03', '2024-08-03', 'ACTIVO', 3, 12),
+('2024-05-04', '2024-08-04', 'ACTIVO', 3, 13), ('2024-05-05', '2024-08-05', 'ACTIVO', 3, 14),
+('2024-05-05', '2024-08-05', 'ACTIVO', 3, 15), ('2024-05-06', '2024-08-06', 'ACTIVO', 3, 16),
+-- Planes Full en Mayo (idMiembros: 11 al 34)
+('2024-05-06', '2024-06-06', 'ACTIVO', 2, 17), ('2024-05-07', '2024-06-07', 'ACTIVO', 2, 18),
+('2024-05-07', '2024-06-07', 'ACTIVO', 2, 19), ('2024-05-08', '2024-06-08', 'ACTIVO', 2, 20),
+('2024-05-08', '2024-06-08', 'ACTIVO', 2, 21), ('2024-05-09', '2024-06-09', 'ACTIVO', 2, 22),
+('2024-05-09', '2024-06-09', 'ACTIVO', 2, 23), ('2024-05-10', '2024-06-10', 'ACTIVO', 2, 24),
+('2024-05-10', '2024-06-10', 'ACTIVO', 2, 25), ('2024-05-11', '2024-06-11', 'ACTIVO', 2, 26),
+('2024-05-12', '2024-06-12', 'ACTIVO', 2, 27), ('2024-05-12', '2024-06-12', 'ACTIVO', 2, 28),
+('2024-05-13', '2024-06-13', 'ACTIVO', 2, 29), ('2024-05-14', '2024-06-14', 'ACTIVO', 2, 30),
+('2024-05-15', '2024-06-15', 'ACTIVO', 2, 31), ('2024-05-15', '2024-06-15', 'ACTIVO', 2, 32),
+('2024-05-16', '2024-06-16', 'ACTIVO', 2, 33), ('2024-05-16', '2024-06-16', 'ACTIVO', 2, 34),
+('2024-05-18', '2024-06-18', 'ACTIVO', 2, 35), ('2024-05-20', '2024-06-20', 'ACTIVO', 2, 36),
+('2024-05-22', '2024-06-22', 'ACTIVO', 2, 37), ('2024-05-25', '2024-06-25', 'ACTIVO', 2, 38),
+('2024-05-28', '2024-06-28', 'ACTIVO', 2, 39), ('2024-05-30', '2024-06-30', 'ACTIVO', 2, 40),
+-- Nuevos de Junio: Mixto entre Básicos y Full (idMiembros: 41 al 55)
+('2024-06-01', '2024-07-01', 'ACTIVO', 1, 41), ('2024-06-01', '2024-07-01', 'ACTIVO', 1, 42),
+('2024-06-02', '2024-07-02', 'ACTIVO', 2, 43), ('2024-06-02', '2024-07-02', 'ACTIVO', 2, 44),
+('2024-06-03', '2024-07-03', 'ACTIVO', 1, 45), ('2024-06-03', '2024-07-03', 'ACTIVO', 1, 46),
+('2024-06-04', '2024-07-04', 'ACTIVO', 2, 47), ('2024-06-04', '2024-07-04', 'ACTIVO', 2, 48),
+('2024-06-05', '2024-07-05', 'ACTIVO', 1, 49), ('2024-06-05', '2024-07-05', 'ACTIVO', 1, 50),
+('2024-06-06', '2024-07-06', 'ACTIVO', 2, 51), ('2024-06-07', '2024-07-07', 'ACTIVO', 1, 52),
+('2024-06-08', '2024-07-08', 'ACTIVO', 2, 53), ('2024-06-09', '2024-07-09', 'ACTIVO', 1, 54),
+('2024-06-10', '2024-07-10', 'ACTIVO', 2, 55);
 
--- 6. CLASES (Asociadas a los instructores 1 y 2)
+-- 6. CLASES (Vinculadas correctamente a idInstructores del 1 al 4)
 INSERT INTO Clases (nombre, tipo, horario, duracion_minutos, capacidad_max, Instructores_idInstructores) VALUES 
-('CrossFit Extremo', 'GRUPAL', '2024-06-20 18:00:00', 60, 15, 1),
-('Yoga Relax', 'GRUPAL', '2024-06-21 09:00:00', 45, 20, 2),
-('Entrenamiento Personalizado', 'PERSONAL', '2024-06-22 10:00:00', 60, NULL, 1);
+('CrossFit Extremo', 'GRUPAL', '2024-05-15 18:00:00', 60, 15, 1),
+('Yoga Relax', 'GRUPAL', '2024-05-16 09:00:00', 45, 20, 2),
+('Calistenia Progresiva', 'GRUPAL', '2024-05-17 16:30:00', 60, 12, 3),
+('Total HIIT Funcional', 'GRUPAL', '2024-05-18 19:00:00', 50, 25, 4);
 
--- 7. INSCRIPCIONES (Miembros activos anotados a clases)
+-- 5. MIEMBROS (Corregido: Se insertan exactamente los 55 registros vinculando las personas de la 7 a la 61)
+INSERT INTO Miembros (fecha_inscripcion, fecha_vencimiento, estado, Planes_id_planes, Persona_idPersona) VALUES 
+-- Trimestrales VIP en Mayo (idMiembros: 1 al 10 | Persona_idPersona: 7 al 16)
+('2024-05-01', '2024-08-01', 'ACTIVO', 3, 7), ('2024-05-01', '2024-08-01', 'ACTIVO', 3, 8),
+('2024-05-02', '2024-08-02', 'ACTIVO', 3, 9), ('2024-05-02', '2024-08-02', 'ACTIVO', 3, 10),
+('2024-05-03', '2024-08-03', 'ACTIVO', 3, 11), ('2024-05-03', '2024-08-03', 'ACTIVO', 3, 12),
+('2024-05-04', '2024-08-04', 'ACTIVO', 3, 13), ('2024-05-05', '2024-08-05', 'ACTIVO', 3, 14),
+('2024-05-05', '2024-08-05', 'ACTIVO', 3, 15), ('2024-05-06', '2024-08-06', 'ACTIVO', 3, 16),
+-- Planes Full en Mayo (idMiembros: 11 al 34 | Persona_idPersona: 17 al 40)
+('2024-05-06', '2024-06-06', 'ACTIVO', 2, 17), ('2024-05-07', '2024-06-07', 'ACTIVO', 2, 18),
+('2024-05-07', '2024-06-07', 'ACTIVO', 2, 19), ('2024-05-08', '2024-06-08', 'ACTIVO', 2, 20),
+('2024-05-08', '2024-06-08', 'ACTIVO', 2, 21), ('2024-05-09', '2024-06-09', 'ACTIVO', 2, 22),
+('2024-05-09', '2024-06-09', 'ACTIVO', 2, 23), ('2024-05-10', '2024-06-10', 'ACTIVO', 2, 24),
+('2024-05-10', '2024-06-10', 'ACTIVO', 2, 25), ('2024-05-11', '2024-06-11', 'ACTIVO', 2, 26),
+('2024-05-12', '2024-06-12', 'ACTIVO', 2, 27), ('2024-05-12', '2024-06-12', 'ACTIVO', 2, 28),
+('2024-05-13', '2024-06-13', 'ACTIVO', 2, 29), ('2024-05-14', '2024-06-14', 'ACTIVO', 2, 30),
+('2024-05-15', '2024-06-15', 'ACTIVO', 2, 31), ('2024-05-15', '2024-06-15', 'ACTIVO', 2, 32),
+('2024-05-16', '2024-06-16', 'ACTIVO', 2, 33), ('2024-05-16', '2024-06-16', 'ACTIVO', 2, 34),
+('2024-05-18', '2024-06-18', 'ACTIVO', 2, 35), ('2024-05-20', '2024-06-20', 'ACTIVO', 2, 36),
+('2024-05-22', '2024-06-22', 'ACTIVO', 2, 37), ('2024-05-25', '2024-06-25', 'ACTIVO', 2, 38),
+('2024-05-28', '2024-06-28', 'ACTIVO', 2, 39), ('2024-05-30', '2024-06-30', 'ACTIVO', 2, 40),
+-- Nuevos e inscripciones de Junio (idMiembros: 35 al 55 | Persona_idPersona: 41 al 61)
+('2024-06-01', '2024-07-01', 'ACTIVO', 1, 41), ('2024-06-01', '2024-07-01', 'ACTIVO', 1, 42),
+('2024-06-02', '2024-07-02', 'ACTIVO', 2, 43), ('2024-06-02', '2024-07-02', 'ACTIVO', 2, 44),
+('2024-06-03', '2024-07-03', 'ACTIVO', 1, 45), ('2024-06-03', '2024-07-03', 'ACTIVO', 1, 46),
+('2024-06-04', '2024-07-04', 'ACTIVO', 2, 47), ('2024-06-04', '2024-07-04', 'ACTIVO', 2, 48),
+('2024-06-05', '2024-07-05', 'ACTIVO', 1, 49), ('2024-06-05', '2024-07-05', 'ACTIVO', 1, 50),
+('2024-06-06', '2024-07-06', 'ACTIVO', 2, 51), ('2024-06-07', '2024-07-07', 'ACTIVO', 1, 52),
+('2024-06-08', '2024-07-08', 'ACTIVO', 2, 53), ('2024-06-09', '2024-07-09', 'ACTIVO', 1, 54),
+('2024-06-10', '2024-07-10', 'ACTIVO', 2, 55), ('2024-06-11', '2024-07-11', 'ACTIVO', 1, 56),
+('2024-06-11', '2024-07-11', 'ACTIVO', 2, 57), ('2024-06-12', '2024-07-12', 'ACTIVO', 1, 58),
+('2024-06-12', '2024-07-12', 'ACTIVO', 2, 59), ('2024-06-13', '2024-07-13', 'ACTIVO', 1, 60),
+('2024-06-13', '2024-07-13', 'ACTIVO', 2, 61);
+
+-- 6. CLASES (Asociadas correctamente a idInstructores del 1 al 4)
+INSERT INTO Clases (nombre, tipo, horario, duracion_minutos, capacidad_max, Instructores_idInstructores) VALUES 
+('CrossFit Extremo', 'GRUPAL', '2024-05-15 18:00:00', 60, 15, 1),
+('Yoga Relax', 'GRUPAL', '2024-05-16 09:00:00', 45, 20, 2),
+('Calistenia Progresiva', 'GRUPAL', '2024-05-17 16:30:00', 60, 12, 3),
+('Total HIIT Funcional', 'GRUPAL', '2024-05-18 19:00:00', 50, 25, 4);
+
+-- 7. INSCRIPCIONES (Ahora todos los idMiembros del 1 al 55 existen perfectamente)
 INSERT INTO Inscripciones (fecha_inscripcion, asistio, Clases_idClases, Miembros_idMiembros) VALUES 
-('2024-06-13', 0, 1, 2), -- María a CrossFit
-('2024-06-14', 1, 2, 3), -- Pedro a Yoga (Ya asistió)
-('2024-06-14', 0, 1, 4); -- Sofía a CrossFit
+('2024-05-14', 1, 1, 11), ('2024-05-14', 1, 1, 12), ('2024-05-15', 1, 2, 13), 
+('2024-05-15', 0, 2, 14), ('2024-05-16', 1, 3, 15), ('2024-05-16', 1, 3, 16),
+('2024-05-17', 1, 4, 1),  ('2024-05-17', 1, 4, 2),  ('2024-05-18', 0, 1, 25),
+('2024-06-02', 1, 1, 43), ('2024-06-03', 1, 3, 44), ('2024-06-04', 1, 4, 51);
 
--- 8. PAGOS (Historial de ingresos)
+-- 8. PAGOS (Historial masivo con balance positivo garantizado)
 INSERT INTO Pagos (monto, fecha_pago, tipo, estado, descripcion, Miembros_idMiembros) VALUES 
-(15000.00, '2024-05-01', 'MENSUALIDAD', 'PAGADO', 'Pago mes Mayo - Efectivo', 1),
-(50000.00, '2024-05-15', 'MENSUALIDAD', 'PAGADO', 'Pago Trimestre - Tarjeta', 2),
-(20000.00, '2024-06-01', 'MENSUALIDAD', 'PAGADO', 'Pago mes Junio - Efectivo', 3),
-(20000.00, '2024-06-10', 'MENSUALIDAD', 'PAGADO', 'Pago mes Junio - Transferencia', 4),
-(15000.00, '2024-06-12', 'MENSUALIDAD', 'PAGADO', 'Pago mes Junio - Efectivo', 5);
+-- MAYO: 10 Trimestrales VIP ($90.000 c/u) = $900.000
+(90000.00, '2024-05-01', 'MENSUALIDAD', 'PAGADO', 'Trimestre Completo - Transferencia', 1),
+(90000.00, '2024-05-01', 'MENSUALIDAD', 'PAGADO', 'Trimestre Completo - Tarjeta', 2),
+(90000.00, '2024-05-02', 'MENSUALIDAD', 'PAGADO', 'Trimestre Completo - Efectivo', 3),
+(90000.00, '2024-05-02', 'MENSUALIDAD', 'PAGADO', 'Trimestre Completo - Transferencia', 4),
+(90000.00, '2024-05-03', 'MENSUALIDAD', 'PAGADO', 'Trimestre Completo', 5),
+(90000.00, '2024-05-03', 'MENSUALIDAD', 'PAGADO', 'Trimestre Completo', 6),
+(90000.00, '2024-05-04', 'MENSUALIDAD', 'PAGADO', 'Trimestre Completo', 7),
+(90000.00, '2024-05-05', 'MENSUALIDAD', 'PAGADO', 'Trimestre Completo', 8),
+(90000.00, '2024-05-05', 'MENSUALIDAD', 'PAGADO', 'Trimestre Completo', 9),
+(90000.00, '2024-05-06', 'MENSUALIDAD', 'PAGADO', 'Trimestre Completo', 10),
+
+-- MAYO: 24 Planes Full ($35.000 c/u) = $840.000
+(35000.00, '2024-05-06', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 11),
+(35000.00, '2024-05-07', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 12),
+(35000.00, '2024-05-07', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 13),
+(35000.00, '2024-05-08', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 14),
+(35000.00, '2024-05-08', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 15),
+(35000.00, '2024-05-09', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 16),
+(35000.00, '2024-05-09', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 17),
+(35000.00, '2024-05-10', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 18),
+(35000.00, '2024-05-10', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 19),
+(35000.00, '2024-05-11', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 20),
+(35000.00, '2024-05-12', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 21),
+(35000.00, '2024-05-12', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 22),
+(35000.00, '2024-05-13', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 23),
+(35000.00, '2024-05-14', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 24),
+(35000.00, '2024-05-15', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 25),
+(35000.00, '2024-05-15', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 26),
+(35000.00, '2024-05-16', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 27),
+(35000.00, '2024-05-16', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 28),
+(35000.00, '2024-05-18', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 29),
+(35000.00, '2024-05-20', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 30),
+(35000.00, '2024-05-22', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 31),
+(35000.00, '2024-05-25', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 32),
+(35000.00, '2024-05-28', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 33),
+(35000.00, '2024-05-30', 'MENSUALIDAD', 'PAGADO', 'Plan Full Mayo', 34),
+
+-- JUNIO: Renovación de los 24 Full de Mayo = $840.000
+(35000.00, '2024-06-06', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 11),
+(35000.00, '2024-06-07', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 12),
+(35000.00, '2024-06-07', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 13),
+(35000.00, '2024-06-08', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 14),
+(35000.00, '2024-06-08', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 15),
+(35000.00, '2024-06-09', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 16),
+(35000.00, '2024-06-09', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 17),
+(35000.00, '2024-06-10', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 18),
+(35000.00, '2024-06-10', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 19),
+(35000.00, '2024-06-11', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 20),
+(35000.00, '2024-06-12', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 21),
+(35000.00, '2024-06-12', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 22),
+(35000.00, '2024-06-13', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 23),
+(35000.00, '2024-06-14', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 24),
+(35000.00, '2024-06-15', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 25),
+(35000.00, '2024-06-15', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 26),
+(35000.00, '2024-06-16', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 27),
+(35000.00, '2024-06-16', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 28),
+(35000.00, '2024-06-18', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 29),
+(35000.00, '2024-06-20', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 30),
+(35000.00, '2024-06-22', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 31),
+(35000.00, '2024-06-25', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 32),
+(35000.00, '2024-06-28', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 33),
+(35000.00, '2024-06-30', 'MENSUALIDAD', 'PAGADO', 'Renovación Full Junio', 34),
+
+-- JUNIO: 7 Nuevos Miembros con Plan Básico ($25.000 c/u) = $175.000
+(25000.00, '2024-06-01', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Básico', 41),
+(25000.00, '2024-06-01', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Básico', 42),
+(25000.00, '2024-06-03', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Básico', 45),
+(25000.00, '2024-06-03', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Básico', 46),
+(25000.00, '2024-06-05', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Básico', 49),
+(25000.00, '2024-06-05', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Básico', 50),
+(25000.00, '2024-06-07', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Básico', 52),
+
+-- JUNIO: 8 Nuevos Miembros con Plan Full ($35.000 c/u) = $280.000
+(35000.00, '2024-06-02', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Full', 43),
+(35000.00, '2024-06-02', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Full', 44),
+(35000.00, '2024-06-04', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Full', 47),
+(35000.00, '2024-06-04', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Full', 48),
+(35000.00, '2024-06-06', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Full', 51),
+(35000.00, '2024-06-08', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Full', 53),
+(35000.00, '2024-06-09', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Full', 54),
+(35000.00, '2024-06-10', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Full', 55);
