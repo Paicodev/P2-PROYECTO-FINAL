@@ -7,6 +7,7 @@ import com.gym.manager.model.enums.EstadoPago;
 import com.gym.manager.model.enums.TipoPago;
 import com.gym.manager.util.DatabaseManager;
 import com.gym.manager.interfaces.DAO;
+import com.gym.manager.dao.MiembroDAO;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class PagoDAO implements DAO<Pago> {
 
     @Override
     public Optional<Pago> buscarPorId(int id) {
-        String sql = "SELECT * FROM Pagos WHERE idPagos = ?";
+        String sql = "SELECT p.*, m.Persona_idPersona FROM Pagos p JOIN Miembros m ON p.Miembros_idMiembros = m.idMiembros WHERE p.idPagos = ?";
         
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -74,7 +75,7 @@ public class PagoDAO implements DAO<Pago> {
     @Override
     public List<Pago> obtenerTodos() {
         List<Pago> lista = new ArrayList<>();
-        String sql = "SELECT * FROM Pagos";
+        String sql = "SELECT p.*, m.Persona_idPersona FROM Pagos p JOIN Miembros m ON p.Miembros_idMiembros = m.idMiembros";
         
         try (PreparedStatement stmt = conexion.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -91,7 +92,7 @@ public class PagoDAO implements DAO<Pago> {
 
     @Override
     public void actualizar(Pago pago) {
-        String sql = "UPDATE Pagos SET Miembros_idMiembros = ?, monto = ?, fecha_pago = ?, tipo = ?, estado = ?, descripcion = ? WHERE idPagos = ?";
+        String sql = "UPDATE Pagos SET Miembros_idMiembros = (SELECT idMiembros FROM Miembros WHERE Persona_idPersona = ?), monto = ?, fecha_pago = ?, tipo = ?, estado = ?, descripcion = ? WHERE idPagos = ?";
         
         try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
             stmt.setInt(1, pago.getMiembro().getId());
@@ -126,9 +127,16 @@ public class PagoDAO implements DAO<Pago> {
     private Pago mapearPago(ResultSet rs) throws SQLException {
         // Instanciamos un Miembro temporal con datos de relleno válidos solo para guardar su ID.
         // En un futuro, aquí se debería usar un MiembroDAO.buscarPorId(rs.getInt("Miembros_idMiembros"))
-        Miembro miembro = new Miembro(null, null, null, null, rs.getInt("Miembros_idMiembros"), 
-                                      "NombreTemp", "ApellidoTemp", "00000000", "test@test.com", "0000000000");
+        //Miembro miembro = new Miembro(null, null, null, null, rs.getInt("Miembros_idMiembros"), 
+        //                              "NombreTemp", "ApellidoTemp", "00000000", "test@test.com", "0000000000");
         
+        int idPersona = rs.getInt("Persona_idPersona");
+        MiembroDAO miembroDAO = new MiembroDAO();
+        Miembro miembro = miembroDAO.buscarPorId(idPersona).orElseGet(() -> 
+            new Miembro(null, null, null, null, idPersona, 
+                        "NombreTemp", "ApellidoTemp", "00000000", "test@test.com", "0000000000")
+        );
+
         return new Pago(
             rs.getInt("idPagos"),
             miembro,
