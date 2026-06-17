@@ -1,23 +1,30 @@
 package com.gym.manager.view.panels;
+
 import javax.swing.*;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Element;
+import com.gym.manager.util.DatabaseManager;
+
 import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import com.itextpdf.text.Phrase;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.gym.manager.util.DatabaseManager;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 /**
- * Panel de Reportes que exportará un informe de las operaciones
+ * Panel de Reportes que exporta informes financieros y de gestión en PDF.
  */
 public class PanelReportes extends JPanel {
 
     private JButton btnIngresos;
-    private JButton btnAsistencia;
+    private JButton btnInscriptos;
     private JTable tablaReportes;
 
     public PanelReportes() { 
