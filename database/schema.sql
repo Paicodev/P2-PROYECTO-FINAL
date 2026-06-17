@@ -392,4 +392,3 @@ INSERT INTO Pagos (monto, fecha_pago, tipo, estado, descripcion, Miembros_idMiem
 (35000.00, '2026-06-08', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Full', 53),
 (35000.00, '2026-06-09', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Full', 54),
 (35000.00, '2026-06-10', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Full', 55);
-DROP DATABASE mydb;

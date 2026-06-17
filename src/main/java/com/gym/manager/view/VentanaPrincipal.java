@@ -130,6 +130,7 @@ public class VentanaPrincipal extends JFrame {
         if ("ADMIN".equalsIgnoreCase(rolUsuario)) {
             agregarBotonMenu(panelLateral, "Reportes", "reportes");
             agregarBotonMenu(panelLateral, "Gestión de Instructores", "instructores");
+            agregarBotonMenu(panelLateral, "Gestión de Usuarios", "usuarios");
         }
 
         // ── Botón logout empujado al fondo ──
@@ -196,9 +197,6 @@ public class VentanaPrincipal extends JFrame {
         // Panel de bienvenida, el que se va a ver por default
         panelCentral.add(crearPanelBienvenida(), "bienvenida");
 
-        // ACÁ REEMPLAZAR CUANDO ESTEN LOS PANELES LISTOS ────────────────────── !!
-
-        // TODO → panelCentral.add(new PanelMiembros(), "miembros");
         PanelMiembros panelMiembros = new PanelMiembros();
         panelCentral.add(panelMiembros, "miembros");
 
@@ -218,6 +216,8 @@ public class VentanaPrincipal extends JFrame {
 
         panelCentral.add(new PanelReportes(), "reportes");
 
+        panelCentral.add(new PanelUsuarios(), "usuarios");
+        
         add(panelCentral, BorderLayout.CENTER);
 
     }
