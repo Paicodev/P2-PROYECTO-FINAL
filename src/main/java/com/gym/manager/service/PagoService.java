@@ -4,7 +4,7 @@ import com.gym.manager.dao.PagoDAO;
 import com.gym.manager.exceptions.ConexionBDException;
 import com.gym.manager.exceptions.DatosInvalidosException;
 import com.gym.manager.model.Pago;
-import com.gym.manager.model.TipoPago;
+import com.gym.manager.model.enums.TipoPago;
 import com.gym.manager.util.DatabaseManager;
 
 import java.sql.Connection;
@@ -23,11 +23,6 @@ public class PagoService {
         this.pagoDAO = new PagoDAO();
     }
 
-    /**
-     * Registra un nuevo pago validando las reglas de negocio y manejando la transacción.
-     * 
-     * @param pago El objeto pago proveniente de la vista/controlador.
-     */
     public void registrarPago(Pago pago) {
         // Validaciones previas
         if (pago.getMonto() <= 0) {
@@ -36,52 +31,97 @@ public class PagoService {
         if (pago.getMiembro() == null) {
             throw new DatosInvalidosException("El pago debe estar asociado a un miembro válido.");
         }
+        
+        // BUG FIX 3: Solo evitamos pagos duplicados si es una MENSUALIDAD
+        if (pago.getTipo() == TipoPago.MENSUALIDAD && yaPagoEsteMes(pago.getMiembro().getId(), TipoPago.MENSUALIDAD, pago.getFecha().toLocalDate())) {
+            throw new DatosInvalidosException("El miembro ya abonó una mensualidad este mes calendario. No puede pagar 2 veces.");
+        }
 
         Connection conn = DatabaseManager.getInstance().getConnection();
-        
         if (conn == null) {
             throw new ConexionBDException("No hay conexión disponible con la base de datos.");
         }
         
         try {
-            // Inicia la transacción (desactivamos el auto-guardado de MySQL)
+            // Inicia la transacción
             conn.setAutoCommit(false);
 
             // Guarda el pago en la base de datos
             pagoDAO.guardar(pago);
 
-            // Lógica extra: Si es una mensualidad, se le suma un mes al vencimiento del miembro
+            // BUG FIX 2: Restauramos la lógica de sumar a la fecha de vencimiento actual, no a la de hoy
+            LocalDate fechaActual = pago.getMiembro().getFechaVencimiento();
+            LocalDate nuevoVencimiento = null;
+
             if (pago.getTipo() == TipoPago.MENSUALIDAD) {
-                LocalDate fechaActual = pago.getMiembro().getFechaVencimiento();
-                LocalDate nuevoVencimiento = (fechaActual != null && fechaActual.isAfter(LocalDate.now())) 
+                nuevoVencimiento = (fechaActual != null && fechaActual.isAfter(LocalDate.now())) 
                         ? fechaActual.plusMonths(1) 
                         : LocalDate.now().plusMonths(1);
-                
-                pago.getMiembro().setFechaVencimiento(nuevoVencimiento);
-                
-                // TODO: Cuando se termine el MiembroDAO, se debe descomentar esto o escribir como es debido:
-                // MiembroDAO miembroDAO = new MiembroDAO();
-                // miembroDAO.actualizar(pago.getMiembro());
+            } else if (pago.getTipo() == TipoPago.CLASE) {
+                nuevoVencimiento = (fechaActual != null && fechaActual.isAfter(LocalDate.now())) 
+                        ? fechaActual.plusDays(1) 
+                        : LocalDate.now().plusDays(1);
             }
 
-            // Confirmamos la transacción (Todo salió perfecto, se aplican los cambios)
+            if (nuevoVencimiento != null) {
+                pago.getMiembro().setFechaVencimiento(nuevoVencimiento);
+                
+                // BUG FIX 1: Hacemos el UPDATE incluyendo el estado = 'ACTIVO' para revivir a los morosos
+                String sqlUpdateVencimiento = "UPDATE Miembros SET fecha_vencimiento = ?, estado = 'ACTIVO' WHERE Persona_idPersona = ?";
+                try (java.sql.PreparedStatement pst = conn.prepareStatement(sqlUpdateVencimiento)) {
+                    pst.setDate(1, java.sql.Date.valueOf(nuevoVencimiento));
+                    pst.setInt(2, pago.getMiembro().getId()); // ID de la persona
+                    pst.executeUpdate();
+                }
+            }
+
+            // Confirmamos la transacción
             conn.commit();
 
         } catch (Exception e) {
-            // Rollback: Si algo falló, deshacemos TODO lo que se haya intentado guardar
             try { 
-                conn.rollback(); 
+                if(!conn.getAutoCommit()){
+                    conn.rollback(); 
+                }
             } catch (SQLException ex) { 
                 System.err.println("Error GRAVE al intentar revertir la transacción: " + ex.getMessage());
             }
-            throw new RuntimeException("Error al registrar el pago. Transacción revertida.", e);
+            
+            // DESEMPAQUETAR ERROR: Para que la vista muestre el error real de SQL y no uno genérico
+            String errorReal = (e instanceof ConexionBDException && e.getCause() != null) ? e.getCause().getMessage() : e.getMessage();
+            throw new RuntimeException("Error en BD: " + errorReal, e);
+            
         } finally {
-            // Restauramos la conexión a su estado original
             try { 
-                conn.setAutoCommit(true); 
-            } catch (SQLException ex) { 
-                System.err.println("Error al restaurar AutoCommit: " + ex.getMessage());
-            }
+                if (!conn.getAutoCommit()) {
+                    conn.setAutoCommit(true); 
+                }
+            } catch (SQLException ex) { }
         }
+    }
+
+    public void eliminarPago(int id) {
+        pagoDAO.eliminar(id);
+    }
+
+    private boolean yaPagoEsteMes(int idPersona, TipoPago tipo, LocalDate fechaPago) {
+        String sql = "SELECT COUNT(*) FROM Pagos p JOIN Miembros m ON p.Miembros_idMiembros = m.idMiembros " +
+                     "WHERE m.Persona_idPersona = ? AND p.tipo = ? AND MONTH(p.fecha_pago) = ? AND YEAR(p.fecha_pago) = ?";
+                     
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (java.sql.PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setInt(1, idPersona);
+            pst.setString(2, tipo.name());
+            pst.setInt(3, fechaPago.getMonthValue());
+            pst.setInt(4, fechaPago.getYear());
+            try (java.sql.ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al verificar pagos del mes: " + e.getMessage());
+        }
+        return false;
     }
 }

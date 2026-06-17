@@ -1,4 +1,4 @@
-package com.gym.manager.model;
+package com.gym.manager.model.enums;
 
 /* Enum que representa los diferentes estados de un miembro del gimnasio (los uso en miembro para obtener el estado)*/
 

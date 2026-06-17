@@ -59,4 +59,9 @@ public class Plan {
     public double calcularPrecioTotal() {
         return precioMensual * duracionMeses;
     }
+
+    @Override
+    public String toString() {
+        return nombrePlan + " (" + duracionMeses + " meses)";
+    }
 }

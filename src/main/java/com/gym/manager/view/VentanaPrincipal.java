@@ -3,8 +3,7 @@ package com.gym.manager.view;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import com.gym.manager.view.panels.PanelClases;
-import com.gym.manager.view.panels.PanelReportes;
+import com.gym.manager.view.panels.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -122,13 +121,16 @@ public class VentanaPrincipal extends JFrame {
 
         // ── Botones de navegación ──
         agregarBotonMenu(panelLateral, "Miembros y Planes",      "miembros");
-        agregarBotonMenu(panelLateral, "Control de Asistencia",  "asistencia");
-        agregarBotonMenu(panelLateral, "Inscripciones",          "inscripciones");
+        agregarBotonMenu(panelLateral, "Planes de Entrenamiento", "planes");
+        agregarBotonMenu(panelLateral, "Clases",          "clases");
+        agregarBotonMenu(panelLateral, "Inscripciones",   "inscripciones");
         agregarBotonMenu(panelLateral, "Registro de Pagos",      "pagos");
 
         // Reportes solo para ADMIN → control de sesión por rol
         if ("ADMIN".equalsIgnoreCase(rolUsuario)) {
             agregarBotonMenu(panelLateral, "Reportes", "reportes");
+            agregarBotonMenu(panelLateral, "Gestión de Instructores", "instructores");
+            agregarBotonMenu(panelLateral, "Gestión de Usuarios", "usuarios");
         }
 
         // ── Botón logout empujado al fondo ──
@@ -195,19 +197,27 @@ public class VentanaPrincipal extends JFrame {
         // Panel de bienvenida, el que se va a ver por default
         panelCentral.add(crearPanelBienvenida(), "bienvenida");
 
-        // ACÁ REEMPLAZAR CUANDO ESTEN LOS PANELES LISTOS ────────────────────── !!
+        PanelMiembros panelMiembros = new PanelMiembros();
+        panelCentral.add(panelMiembros, "miembros");
 
-        // TODO → panelCentral.add(new PanelMiembros(), "miembros");
+        PanelPlan panelPlan = new PanelPlan();
+        panelCentral.add(panelPlan, "planes");
 
-        // TODO → panelCentral.add(new PanelAsistencia(), "asistencia");
+        panelCentral.add(new PanelInstructores(), "instructores");
 
         PanelClases panelClases = new PanelClases();
-        panelCentral.add(panelClases, "inscripciones");
+        panelCentral.add(panelClases, "clases");
 
-        // TODO → panelCentral.add(new PanelPagos(), "pagos");
+        PanelInscripciones panelInscripciones = new PanelInscripciones();
+        panelCentral.add(panelInscripciones, "inscripciones");
+
+        PanelPagos panelPagos = new PanelPagos();
+        panelCentral.add(panelPagos, "pagos");
 
         panelCentral.add(new PanelReportes(), "reportes");
 
+        panelCentral.add(new PanelUsuarios(), "usuarios");
+        
         add(panelCentral, BorderLayout.CENTER);
 
     }
