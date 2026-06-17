@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Persona` (
   `dni` VARCHAR(20) NOT NULL,
   `email` VARCHAR(150) NULL,
   `telefono` VARCHAR(20) NULL,
-  `tipo_persona` ENUM('MIEMBRO', 'INSTRUCTOR', 'ADMIN') NULL,
+  `tipo_persona` ENUM('MIEMBRO', 'INSTRUCTOR', 'ADMIN', 'RECEPCIONISTA') NULL,
   `fecha_registro` DATE NOT NULL,
   `activo` TINYINT NULL DEFAULT 1,
   PRIMARY KEY (`idPersona`),

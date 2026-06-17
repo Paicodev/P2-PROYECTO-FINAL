@@ -7,7 +7,6 @@ import com.gym.manager.model.enums.EstadoPago;
 import com.gym.manager.model.enums.TipoPago;
 import com.gym.manager.util.DatabaseManager;
 import com.gym.manager.interfaces.DAO;
-import com.gym.manager.dao.MiembroDAO;
 
 import java.sql.*;
 import java.util.ArrayList;
