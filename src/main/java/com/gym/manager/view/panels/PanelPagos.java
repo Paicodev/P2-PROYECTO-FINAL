@@ -39,7 +39,6 @@ public class PanelPagos extends JPanel {
     private JTextField txtDniMiembro;
     private JTextField txtMonto;
     private JComboBox<TipoPago> comboTipo;
-    private JComboBox<EstadoPago> comboEstado;
     private JTextField txtDescripcion;
 
     public PanelPagos() {
@@ -71,10 +70,9 @@ public class PanelPagos extends JPanel {
 
         txtDniMiembro = crearTextField();
         txtMonto = crearTextField();
-        comboTipo = new JComboBox<>(TipoPago.values());
+        // Restringimos las opciones visibles para el usuario sin alterar la BD
+        comboTipo = new JComboBox<>(new TipoPago[]{TipoPago.MENSUALIDAD, TipoPago.CLASE});
         estilizarComponenteUI(comboTipo);
-        comboEstado = new JComboBox<>(EstadoPago.values());
-        estilizarComponenteUI(comboEstado);
         txtDescripcion = crearTextField();
 
         // Fila 1
@@ -86,8 +84,8 @@ public class PanelPagos extends JPanel {
         // Fila 2
         panelCampos.add(crearLabel("Tipo de Pago:"));
         panelCampos.add(comboTipo);
-        panelCampos.add(crearLabel("Estado:"));
-        panelCampos.add(comboEstado);
+        panelCampos.add(new JLabel()); // Relleno para mantener diseño
+        panelCampos.add(new JLabel()); // Relleno para mantener diseño
 
         // Fila 3
         panelCampos.add(crearLabel("Descripción:"));
@@ -117,7 +115,7 @@ public class PanelPagos extends JPanel {
         JPanel panelTabla = new JPanel(new BorderLayout());
         panelTabla.setBackground(BG_CENTRAL);
 
-        String[] columnas = {"ID Pago", "DNI Miembro", "Monto", "Fecha", "Tipo", "Estado", "Descripción"};
+        String[] columnas = {"ID Pago", "DNI Miembro", "Monto", "Fecha", "Tipo", "Estado", "Descripción", "Vencimiento"};
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
@@ -168,7 +166,7 @@ public class PanelPagos extends JPanel {
                 try {
                     List<Pago> pagos = get();
                     modeloTabla.setRowCount(0);
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
                     for (Pago p : pagos) {
                         Object[] fila = {
@@ -178,7 +176,8 @@ public class PanelPagos extends JPanel {
                             p.getFecha() != null ? p.getFecha().format(formatter) : "",
                             p.getTipo() != null ? p.getTipo().name() : "N/A",
                             p.getEstado() != null ? p.getEstado().name() : "N/A",
-                            p.getDescripcion()
+                            p.getDescripcion(),
+                            (p.getMiembro() != null && p.getMiembro().getFechaVencimiento() != null) ? p.getMiembro().getFechaVencimiento().toString() : "N/A"
                         };
                         modeloTabla.addRow(fila);
                     }
@@ -195,7 +194,7 @@ public class PanelPagos extends JPanel {
             String dniMiembro = txtDniMiembro.getText().trim();
             double monto = Double.parseDouble(txtMonto.getText().trim());
             TipoPago tipo = (TipoPago) comboTipo.getSelectedItem();
-            EstadoPago estado = (EstadoPago) comboEstado.getSelectedItem();
+            EstadoPago estado = EstadoPago.PAGADO; // Se asigna estado de forma automática
             String desc = txtDescripcion.getText().trim();
 
             // Validamos que el miembro realmente exista buscando por DNI
@@ -251,7 +250,15 @@ public class PanelPagos extends JPanel {
         Optional<Pago> pagoOpt = pagoDAO.buscarPorId(idPago);
         
         if (pagoOpt.isPresent()) {
-            String recibo = pagoOpt.get().generarRecibo();
+            Pago pago = pagoOpt.get();
+            String recibo = pago.generarRecibo();
+            
+            // Añadimos el vencimiento dinámicamente al recibo
+            if (pago.getMiembro() != null && pago.getMiembro().getFechaVencimiento() != null) {
+                recibo += "\n-------------------------------------------------\n";
+                recibo += "Próximo Vencimiento: " + pago.getMiembro().getFechaVencimiento().toString() + "\n";
+            }
+            
             JOptionPane.showMessageDialog(this, recibo, "Comprobante de Pago", JOptionPane.INFORMATION_MESSAGE);
         }
     }
@@ -261,7 +268,6 @@ public class PanelPagos extends JPanel {
         txtMonto.setText("");
         txtDescripcion.setText("");
         comboTipo.setSelectedIndex(0);
-        comboEstado.setSelectedIndex(0);
     }
 
     // --- MÉTODOS AUXILIARES DE DISEÑO UI ---

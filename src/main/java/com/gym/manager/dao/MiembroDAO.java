@@ -118,6 +118,8 @@ public class MiembroDAO implements DAO<Miembro> {
 
     @Override
     public List<Miembro> obtenerTodos() {
+        actualizarEstadosVencidos();
+        
         List<Miembro> lista = new ArrayList<>();
         String todosSQL = "SELECT * FROM Persona p JOIN Miembros m ON p.idPersona = m.Persona_idPersona";
 
@@ -243,6 +245,8 @@ public class MiembroDAO implements DAO<Miembro> {
 
     // MÉTODOS DE MIEMBRO DAO
     public Optional<Miembro> buscarPorDNI(String dni){
+        actualizarEstadosVencidos();
+        
         String sqlBuscarDNI = "SELECT * FROM persona p JOIN miembros m ON p.idPersona = m.Persona_idPersona WHERE p.dni = ?";
         
         Connection conn = DatabaseManager.getInstance().getConnection();
@@ -285,5 +289,19 @@ public class MiembroDAO implements DAO<Miembro> {
         return this.obtenerTodos().stream()
                 .filter(m -> m.diasParaVencer() <= dias && m.diasParaVencer() >= 0)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Actualiza automáticamente en la base de datos a los miembros cuya fecha 
+     * de vencimiento ya pasó, pasándolos a estado VENCIDO.
+     */
+    private void actualizarEstadosVencidos() {
+        String sql = "UPDATE Miembros SET estado = 'VENCIDO' WHERE fecha_vencimiento < CURDATE() AND estado = 'ACTIVO'";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar miembros vencidos: " + e.getMessage());
+        }
     }
 }

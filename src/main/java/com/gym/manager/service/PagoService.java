@@ -60,13 +60,15 @@ public class PagoService {
             // Guarda el pago en la base de datos
             pagoDAO.guardar(pago);
 
-            // Lógica extra: Si es una mensualidad, se le suma un mes al vencimiento del miembro
+            // Lógica extra: Actualizar el vencimiento del miembro según el tipo de pago
+            LocalDate nuevoVencimiento = null;
             if (pago.getTipo() == TipoPago.MENSUALIDAD) {
-                LocalDate fechaActual = pago.getMiembro().getFechaVencimiento();
-                LocalDate nuevoVencimiento = (fechaActual != null && fechaActual.isAfter(LocalDate.now())) 
-                        ? fechaActual.plusMonths(1) 
-                        : LocalDate.now().plusMonths(1);
-                
+                nuevoVencimiento = pago.getFecha().toLocalDate().plusMonths(1);
+            } else if (pago.getTipo() == TipoPago.CLASE) {
+                nuevoVencimiento = pago.getFecha().toLocalDate().plusDays(1);
+            }
+
+            if (nuevoVencimiento != null) {
                 pago.getMiembro().setFechaVencimiento(nuevoVencimiento);
                 
                 // FIX ARQUITECTÓNICO: Hacemos el UPDATE directamente en esta transacción
