@@ -29,164 +29,232 @@ public class PanelReportes extends JPanel {
 
     public PanelReportes() { 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    inicializarComponentes();
-    
-    
-}
- private void inicializarComponentes() { 
-    setBackground(new java.awt.Color(17, 34, 46));
+        inicializarComponentes();
+    }
 
-JLabel titulo = new JLabel("REPORTES");
+    private void inicializarComponentes() { 
+        setBackground(new java.awt.Color(28, 43, 51)); // Actualizado a la paleta BG_CENTRAL de FitBase
 
-titulo.setForeground(java.awt.Color.WHITE);
-    titulo.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 22));
-    titulo.setAlignmentX(CENTER_ALIGNMENT);
+        JLabel titulo = new JLabel("REPORTES Y BALANCES");
+        titulo.setForeground(java.awt.Color.WHITE);
+        titulo.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 22));
+        titulo.setAlignmentX(CENTER_ALIGNMENT);
 
+        btnIngresos  = new JButton("Generar Balance de Ingresos/Gastos");
+        btnInscriptos = new JButton("Generar Reporte de Inscriptos");
 
-btnIngresos  = new JButton("Ver Ingresos");
-btnAsistencia = new JButton("Ver Asistencia");
+        btnIngresos.addActionListener(e -> exportarPDF("INGRESOS"));
+        btnInscriptos.addActionListener(e -> exportarPDF("INSCRIPTOS"));
 
-btnIngresos.addActionListener(e -> exportarPDF("INGRESOS"));
-btnAsistencia.addActionListener(e -> exportarPDF("ASISTENCIA"));
+        // Estilo botones
+        btnIngresos.setBackground(new java.awt.Color(0, 150, 136)); // ACENTO_TURQUESA
+        btnIngresos.setForeground(java.awt.Color.WHITE);
+        btnIngresos.setFocusPainted(false);
+        
+        btnInscriptos.setBackground(new java.awt.Color(0, 150, 136));
+        btnInscriptos.setForeground(java.awt.Color.WHITE);
+        btnInscriptos.setFocusPainted(false);
 
- // Estilo botones
-    btnIngresos.setBackground(new java.awt.Color(0, 153, 153));
-    btnIngresos.setForeground(java.awt.Color.WHITE);
+        String[] columnas = {"Reporte", "Estado", "Última Generación"};
+        tablaReportes = new JTable (new javax.swing.table.DefaultTableModel (new Object [][]{}, columnas));
 
-    btnAsistencia.setBackground(new java.awt.Color(0, 153, 153));
-    btnAsistencia.setForeground(java.awt.Color.WHITE);
+        // Estilo tabla (Placeholder visual)
+        tablaReportes.setBackground(new java.awt.Color(22, 38, 45)); // BG_FORMULARIO
+        tablaReportes.setForeground(java.awt.Color.WHITE);
+        tablaReportes.setRowHeight(25);
+        tablaReportes.getTableHeader().setBackground(new java.awt.Color(35, 58, 70)); // BG_INPUTS
+        tablaReportes.getTableHeader().setForeground(java.awt.Color.WHITE);
+        tablaReportes.setGridColor(java.awt.Color.GRAY);
+        tablaReportes.setSelectionBackground(new java.awt.Color(0, 150, 136));
 
-String[] columnas = {"Reporte", "Resultado"};
+        JScrollPane scroll = new JScrollPane(tablaReportes);
+        scroll.getViewport().setBackground(new java.awt.Color(28, 43, 51));
 
-tablaReportes = new JTable (
-    new javax.swing.table.DefaultTableModel ( 
-        new Object [][]{},
-    columnas
-)
-);
+        add(Box.createVerticalStrut(30));
+        add(titulo);
+        add(Box.createVerticalStrut(20));
+        
+        JPanel panelBotones = new JPanel();
+        panelBotones.setBackground(new java.awt.Color(28, 43, 51));
+        panelBotones.add(btnIngresos);
+        panelBotones.add(Box.createHorizontalStrut(15));
+        panelBotones.add(btnInscriptos);
+        add(panelBotones);
+        
+        add(Box.createVerticalStrut(20));
+        scroll.setPreferredSize(new java.awt.Dimension(800, 300));
+        scroll.setMaximumSize(new java.awt.Dimension(800, 300));
+        add(scroll);
+    }
 
- // Estilo tabla
-    tablaReportes.setBackground(new java.awt.Color(22, 40, 55));
-    tablaReportes.setForeground(java.awt.Color.WHITE);
-    tablaReportes.setRowHeight(25);
+    private void exportarPDF(String tipoReporte) {
+        String nombreArchivo = tipoReporte.equals("INGRESOS") ? "Balance_Financiero.pdf" : "Reporte_Inscriptos.pdf";
+        
+        try {
+            Document documento = new Document();
+            PdfWriter.getInstance(documento, new FileOutputStream(nombreArchivo));
+            documento.open();
 
-    tablaReportes.getTableHeader().setBackground(
-        new java.awt.Color(35, 55, 75)
-    );
-    tablaReportes.getTableHeader().setForeground(
-        java.awt.Color.WHITE
-    );
-    tablaReportes.setGridColor(java.awt.Color.GRAY);
-tablaReportes.setSelectionBackground(
-    new java.awt.Color(0, 153, 153)
-);
-
-
-JScrollPane scroll = new JScrollPane(tablaReportes);
-scroll.getViewport().setBackground(
-        new java.awt.Color(22, 40, 55)
-    );
-
-add(Box.createVerticalStrut(20));
-add(titulo);
-JPanel panelBotones = new JPanel();
-panelBotones.setBackground(new java.awt.Color(17, 34, 46));
-panelBotones.add(btnIngresos);
-panelBotones.add(btnAsistencia);
-add(panelBotones);
-scroll.setPreferredSize(new java.awt.Dimension(800, 400));
-add(scroll);
- 
-}
-private void exportarPDF(String tipoReporte){
-    try {
-        Document documento = new Document();
-        // Asignamos un nombre de archivo dinámico
-String nombreArchivo = tipoReporte.equals("INGRESOS") ? 
-"Reporte_Ingresos.pdf" : "Reporte_Asistencia.pdf";
-PdfWriter.getInstance(documento, new FileOutputStream(nombreArchivo));
-documento.open();
-
-documento.add(new Paragraph("REPORTE DE " + tipoReporte + " DEL GIMNASIO\n\n"));
-
-
-PdfPTable tablaPdf = new PdfPTable(3);
+            com.itextpdf.text.Font fontTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
+            com.itextpdf.text.Font fontMes = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14);
             
-            if (tipoReporte.equals("INGRESOS")) {
-                tablaPdf.addCell(new PdfPCell(new Phrase("Fecha")));
-                tablaPdf.addCell(new PdfPCell(new Phrase("Socio (DNI)")));
-                tablaPdf.addCell(new PdfPCell(new Phrase("Monto ($)")));
-            } else {
-                tablaPdf.addCell(new PdfPCell(new Phrase("Clase")));
-                tablaPdf.addCell(new PdfPCell(new Phrase("Socio Asistente")));
-                tablaPdf.addCell(new PdfPCell(new Phrase("Fecha Inscripción")));
-            }
+            Paragraph titulo = new Paragraph("FITBASE - " + (tipoReporte.equals("INGRESOS") ? "BALANCE FINANCIERO" : "REPORTE DE MIEMBROS INSCRIPTOS"), fontTitulo);
+            titulo.setAlignment(Element.ALIGN_CENTER);
+            titulo.setSpacingAfter(20);
+            documento.add(titulo);
 
             Connection conn = DatabaseManager.getInstance().getConnection();
-            String sql = "";
+            SimpleDateFormat sdfMes = new SimpleDateFormat("MMMM yyyy", new Locale("es", "ES"));
 
             if (tipoReporte.equals("INGRESOS")) {
-                // Consulta detallada de ingresos (Uniendo Pagos con Miembros y Persona)
-                sql = "SELECT p.fecha_pago, per.dni, per.nombre, per.apellido, p.monto " +
-                      "FROM Pagos p " +
-                      "JOIN Miembros m ON p.Miembros_idMiembros = m.idMiembros " +
-                      "JOIN Persona per ON m.Persona_idPersona = per.idPersona " +
-                      "WHERE p.estado = 'PAGADO' ORDER BY p.fecha_pago DESC";
+                generarReporteIngresos(documento, conn, sdfMes, fontMes);
             } else {
-                // Consulta detallada de asistencia (Uniendo Inscripciones con Clases, Miembros y Persona)
-                sql = "SELECT c.nombre as clase_nombre, per.nombre as socio_nom, per.apellido as socio_ape, i.fecha_inscripcion " +
-                      "FROM Inscripciones i " +
-                      "JOIN Clases c ON i.Clases_idClases = c.idClases " +
-                      "JOIN Miembros m ON i.Miembros_idMiembros = m.idMiembros " +
-                      "JOIN Persona per ON m.Persona_idPersona = per.idPersona " +
-                      "ORDER BY c.nombre ASC";
+                generarReporteInscriptos(documento, conn, sdfMes, fontMes);
             }
 
-            try (PreparedStatement pstmt = conn.prepareStatement(sql);
-                 ResultSet rs = pstmt.executeQuery()) {
+            documento.close();
+            JOptionPane.showMessageDialog(this, "PDF generado con éxito: " + nombreArchivo, "Reporte Exportado", JOptionPane.INFORMATION_MESSAGE);
 
-                double totalIngresos = 0.0; // Variable para sumar el total
+            // Agregamos un registro a la tablita visual para dar feedback
+            ((javax.swing.table.DefaultTableModel)tablaReportes.getModel()).addRow(new Object[]{
+                tipoReporte, "Generado OK", new java.util.Date().toString()
+            });
 
-                // Llenamos la tabla del PDF con los resultados de la base de datos
-                while (rs.next()) {
-                    if (tipoReporte.equals("INGRESOS")) {
-                        double monto = rs.getDouble("monto");
-                        totalIngresos += monto; // Vamos sumando al total general
-                        
-                        tablaPdf.addCell(rs.getDate("fecha_pago").toString());
-                        tablaPdf.addCell(rs.getString("nombre") + " " + rs.getString("apellido") + " (" + rs.getString("dni") + ")");
-                        tablaPdf.addCell(String.format("$%.2f", monto));
-                    } else {
-                        tablaPdf.addCell(rs.getString("clase_nombre"));
-                        tablaPdf.addCell(rs.getString("socio_nom") + " " + rs.getString("socio_ape"));
-                        tablaPdf.addCell(rs.getDate("fecha_inscripcion").toString());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error al generar PDF: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void generarReporteIngresos(Document documento, Connection conn, SimpleDateFormat sdfMes, com.itextpdf.text.Font fontMes) throws Exception {
+        // 1. Obtener gastos fijos (Sueldo mensual de instructores)
+        double totalSueldos = 0;
+        try (PreparedStatement ps = conn.prepareStatement("SELECT SUM(sueldo) as total FROM Instructores");
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) totalSueldos = rs.getDouble("total");
+        }
+
+        // 2. Obtener pagos ordenados por fecha
+        String sql = "SELECT p.fecha_pago, per.dni, per.nombre, per.apellido, p.monto " +
+                     "FROM Pagos p JOIN Miembros m ON p.Miembros_idMiembros = m.idMiembros " +
+                     "JOIN Persona per ON m.Persona_idPersona = per.idPersona " +
+                     "WHERE p.estado = 'PAGADO' ORDER BY YEAR(p.fecha_pago) DESC, MONTH(p.fecha_pago) DESC, p.fecha_pago DESC";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            String mesActual = "";
+            double ingresosMes = 0;
+            PdfPTable tablaMes = null;
+
+            while (rs.next()) {
+                java.sql.Date fecha = rs.getDate("fecha_pago");
+                String mesFila = sdfMes.format(fecha).toUpperCase();
+
+                // Si cambia el mes, cerramos la tabla anterior e iniciamos una nueva
+                if (!mesFila.equals(mesActual)) {
+                    if (tablaMes != null) {
+                        cerrarTablaFinanciera(tablaMes, ingresosMes, totalSueldos);
+                        documento.add(tablaMes);
+                        documento.add(new Paragraph("\n"));
                     }
+                    mesActual = mesFila;
+                    ingresosMes = 0;
+                    
+                    documento.add(new Paragraph("PERÍODO: " + mesActual, fontMes));
+                    documento.add(new Paragraph("\n"));
+                    
+                    tablaMes = new PdfPTable(4);
+                    tablaMes.setWidthPercentage(100);
+                    tablaMes.addCell(crearCeldaHeader("Fecha"));
+                    tablaMes.addCell(crearCeldaHeader("Socio"));
+                    tablaMes.addCell(crearCeldaHeader("DNI"));
+                    tablaMes.addCell(crearCeldaHeader("Monto Ingresado"));
                 }
 
-                // --- AGREGAMOS LA FILA DE TOTAL SOLO SI ES REPORTE DE INGRESOS ---
-                if (tipoReporte.equals("INGRESOS")) {
-                    PdfPCell celdaTextoTotal = new PdfPCell(new Phrase("TOTAL INGRESOS:"));
-                    celdaTextoTotal.setColspan(2); // Ocupa el espacio de 2 columnas (Fecha y Socio)
-                    celdaTextoTotal.setHorizontalAlignment(com.itextpdf.text.Element.ALIGN_RIGHT); // Alineamos a la derecha
-                    
-                    PdfPCell celdaMontoTotal = new PdfPCell(new Phrase(String.format("$%.2f", totalIngresos)));
-                    
-                    tablaPdf.addCell(celdaTextoTotal);
-                    tablaPdf.addCell(celdaMontoTotal);
-                }
+                ingresosMes += rs.getDouble("monto");
+                tablaMes.addCell(fecha.toString());
+                tablaMes.addCell(rs.getString("nombre") + " " + rs.getString("apellido"));
+                tablaMes.addCell(rs.getString("dni"));
+                tablaMes.addCell(String.format("$%.2f", rs.getDouble("monto")));
             }
 
-            documento.add(tablaPdf);
-documento.close();
+            // Cerrar el último mes
+            if (tablaMes != null) {
+                cerrarTablaFinanciera(tablaMes, ingresosMes, totalSueldos);
+                documento.add(tablaMes);
+            }
+        }
+    }
 
-JOptionPane.showMessageDialog(this, "PDF de " + 
-tipoReporte + " generado correctamente en la carpeta del proyecto.", "Éxito", 
-JOptionPane.INFORMATION_MESSAGE);
+    private void cerrarTablaFinanciera(PdfPTable tabla, double ingresos, double gastos) {
+        PdfPCell celdaVacia = new PdfPCell(new Phrase("")); celdaVacia.setColspan(2); celdaVacia.setBorder(0);
+        
+        PdfPCell cTituloIngreso = new PdfPCell(new Phrase("TOTAL INGRESOS:", FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
+        PdfPCell cIngreso = new PdfPCell(new Phrase(String.format("$%.2f", ingresos)));
+        
+        PdfPCell cTituloGasto = new PdfPCell(new Phrase("GASTOS (Sueldos):", FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
+        PdfPCell cGasto = new PdfPCell(new Phrase(String.format("$%.2f", gastos)));
+        cTituloGasto.setBackgroundColor(com.itextpdf.text.BaseColor.LIGHT_GRAY);
+        cGasto.setBackgroundColor(com.itextpdf.text.BaseColor.LIGHT_GRAY);
 
-} catch (Exception e) {
-JOptionPane.showMessageDialog(this, "Error al generar el PDF: " +
-e.getMessage(), "Error de E/S", JOptionPane.ERROR_MESSAGE
-);
-}
-}   
+        PdfPCell cTituloBal = new PdfPCell(new Phrase("BALANCE NETO:", FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
+        PdfPCell cBalance = new PdfPCell(new Phrase(String.format("$%.2f", (ingresos - gastos))));
+        
+        tabla.addCell(celdaVacia); tabla.addCell(cTituloIngreso); tabla.addCell(cIngreso);
+        tabla.addCell(celdaVacia); tabla.addCell(cTituloGasto); tabla.addCell(cGasto);
+        tabla.addCell(celdaVacia); tabla.addCell(cTituloBal); tabla.addCell(cBalance);
+    }
+
+    private void generarReporteInscriptos(Document documento, Connection conn, SimpleDateFormat sdfMes, com.itextpdf.text.Font fontMes) throws Exception {
+        String sql = "SELECT m.fecha_inscripcion, m.fecha_vencimiento, m.estado, p.nombre, p.apellido, p.dni, pl.nombre_plan " +
+                     "FROM Miembros m JOIN Persona p ON m.Persona_idPersona = p.idPersona " +
+                     "JOIN Planes pl ON m.Planes_id_planes = pl.id_planes " +
+                     "ORDER BY YEAR(m.fecha_inscripcion) DESC, MONTH(m.fecha_inscripcion) DESC, m.fecha_inscripcion DESC";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            String mesActual = "";
+            PdfPTable tablaMes = null;
+
+            while (rs.next()) {
+                java.sql.Date fechaInsc = rs.getDate("fecha_inscripcion");
+                String mesFila = sdfMes.format(fechaInsc).toUpperCase();
+
+                if (!mesFila.equals(mesActual)) {
+                    if (tablaMes != null) {
+                        documento.add(tablaMes);
+                        documento.add(new Paragraph("\n"));
+                    }
+                    mesActual = mesFila;
+                    
+                    documento.add(new Paragraph("INSCRIPTOS EN: " + mesActual, fontMes));
+                    documento.add(new Paragraph("\n"));
+                    
+                    tablaMes = new PdfPTable(5);
+                    tablaMes.setWidthPercentage(100);
+                    tablaMes.addCell(crearCeldaHeader("Socio"));
+                    tablaMes.addCell(crearCeldaHeader("DNI"));
+                    tablaMes.addCell(crearCeldaHeader("Inscripción"));
+                    tablaMes.addCell(crearCeldaHeader("Vencimiento"));
+                    tablaMes.addCell(crearCeldaHeader("Estado"));
+                }
+
+                tablaMes.addCell(rs.getString("nombre") + " " + rs.getString("apellido"));
+                tablaMes.addCell(rs.getString("dni"));
+                tablaMes.addCell(fechaInsc.toString());
+                tablaMes.addCell(rs.getDate("fecha_vencimiento").toString());
+                tablaMes.addCell(rs.getString("estado"));
+            }
+
+            if (tablaMes != null) documento.add(tablaMes);
+        }
+    }
+
+    private PdfPCell crearCeldaHeader(String texto) {
+        PdfPCell celda = new PdfPCell(new Phrase(texto, FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
+        celda.setBackgroundColor(com.itextpdf.text.BaseColor.LIGHT_GRAY);
+        celda.setHorizontalAlignment(Element.ALIGN_CENTER);
+        return celda;
+    }
 }
