@@ -18,7 +18,8 @@ public class InscripcionesDAO {
 
        try {
             // 1. VALIDAR ESTADO DEL MIEMBRO
-            String sqlEstado = "SELECT estado FROM Miembros WHERE idMiembros = (SELECT idMiembros FROM Miembros WHERE Persona_idPersona = ?)";
+            String sqlEstado = "SELECT estado FROM Miembros WHERE idMiembros = (SELECT idMiembros FROM Miembros WHERE Persona_idPersona = ? ORDER BY idMiembros DESC LIMIT 1)";
+
             try (PreparedStatement ps = con.prepareStatement(sqlEstado)) {
                 ps.setInt(1, inscripciones.getMiembrosIdMiembros());
                 ResultSet rs = ps.executeQuery();
@@ -27,8 +28,8 @@ public class InscripcionesDAO {
                 }
             }
 
-            // 2. VALIDAR DUPLICADO (Que no se anote 2 veces en la misma clase)
-            String sqlDuplicado = "SELECT idInscripciones FROM Inscripciones WHERE Clases_idClases = ? AND Miembros_idMiembros = (SELECT idMiembros FROM Miembros WHERE Persona_idPersona = ?)";
+            // 2. VALIDAR DUPLICADO
+            String sqlDuplicado = "SELECT idInscripciones FROM Inscripciones WHERE Clases_idClases = ? AND Miembros_idMiembros = (SELECT idMiembros FROM Miembros WHERE Persona_idPersona = ? ORDER BY idMiembros DESC LIMIT 1)";
             try (PreparedStatement ps = con.prepareStatement(sqlDuplicado)) {
                 ps.setInt(1, inscripciones.getClasesIdClases());
                 ps.setInt(2, inscripciones.getMiembrosIdMiembros());
@@ -58,9 +59,9 @@ public class InscripcionesDAO {
                 }
             }
 
-            // 4. INSERT (La subquery traduce el ID de Persona a ID de Miembro)
+            // 4. INSERT 
             String sqlInsert = "INSERT INTO Inscripciones (fecha_inscripcion, asistio, Clases_idClases, Miembros_idMiembros) " +
-                               "VALUES (?, ?, ?, (SELECT idMiembros FROM Miembros WHERE Persona_idPersona = ?))";
+                               "VALUES (?, ?, ?, (SELECT idMiembros FROM Miembros WHERE Persona_idPersona = ? ORDER BY idMiembros DESC LIMIT 1))";
             
             try (PreparedStatement ps = con.prepareStatement(sqlInsert)) {
                 ps.setDate(1, Date.valueOf(inscripciones.getFechaInscripcion()));
