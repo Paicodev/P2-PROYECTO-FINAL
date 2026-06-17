@@ -112,11 +112,43 @@ public class ClaseDAO implements DAO<ClaseGimnasio> {
 
     @Override
     public void actualizar(ClaseGimnasio clase) {
-        throw new UnsupportedOperationException("Actualización aún no implementada.");
+        String sql = "UPDATE Clases SET nombre=?, tipo=?, horario=?, duracion_minutos=?, capacidad_max=?, activo=?, Instructores_idInstructores=? WHERE idClases=?";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, clase.getNombre());
+            pstmt.setString(2, clase.getTipoClase());
+            pstmt.setTimestamp(3, Timestamp.valueOf(clase.getHorario()));
+            pstmt.setInt(4, clase.getDuracionMinutos());
+            
+            // Evaluamos la capacidad según el tipo de clase
+            if (clase instanceof ClaseGrupal) {
+                pstmt.setInt(5, ((ClaseGrupal) clase).getCapacidadMax());
+            } else {
+                pstmt.setNull(5, Types.INTEGER); // Las clases personales no tienen capacidad máxima
+            }
+            
+            pstmt.setBoolean(6, clase.isActivo());
+            pstmt.setInt(7, clase.getInstructor().getIdInstructor());
+            pstmt.setInt(8, clase.getIdClase()); // El ID va al final para el WHERE
+
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new ConexionBDException("Error al actualizar la clase en la base de datos.", e);
+        }
     }
 
     @Override
     public void eliminar(int id) {
-        throw new UnsupportedOperationException("Eliminación aún no implementada.");
+        String sql = "DELETE FROM Clases WHERE idClases=?";
+        Connection conn = DatabaseManager.getInstance().getConnection();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            // ¡ATRAPAMOS EL ERROR DE LA FK!
+            throw new ConexionBDException("No se puede eliminar la clase porque ya tiene miembros inscriptos. Primero debe dar de baja las inscripciones.", e);
+        }
     }
 }
