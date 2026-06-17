@@ -25,10 +25,10 @@ public class PagoDAO implements DAO<Pago> {
 
     @Override
     public void guardar(Pago pago) {
-        // 2. Preparamos el SQL con "?" para evitar inyección SQL (Seguridad)
+        // Agregamos ORDER BY idMiembros DESC LIMIT 1 para asegurar que traiga el actual
         String sql = "INSERT INTO Pagos (Miembros_idMiembros, monto, fecha_pago, tipo, estado, descripcion) " +
-                     "VALUES ((SELECT idMiembros FROM Miembros WHERE Persona_idPersona = ?), ?, ?, ?, ?, ?)";
-        
+                     "VALUES ((SELECT idMiembros FROM Miembros WHERE Persona_idPersona = ? ORDER BY idMiembros DESC LIMIT 1), ?, ?, ?, ?, ?)";
+                     
         try (PreparedStatement stmt = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             
             // 3. Reemplazamos los "?" con los datos de nuestro objeto Pago

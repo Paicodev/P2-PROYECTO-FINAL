@@ -13,6 +13,7 @@ public class LoginFrame extends JFrame {
     private JTextField txtUsuario;
     private JPasswordField txtPassword;
     private JButton btnIngresar;
+    
 
     public LoginFrame() {
         // Configuración básica de la ventana
@@ -38,6 +39,7 @@ public class LoginFrame extends JFrame {
         btnIngresar.setBackground(new Color(41, 128, 185)); // Color azul
         btnIngresar.setForeground(Color.WHITE);
         btnIngresar.setFocusPainted(false); // Quita el borde punteado feo al hacer clic
+        this.getRootPane().setDefaultButton(btnIngresar);
 
         // Usamos GridBagConstraints para posicionar los componentes 
         GridBagConstraints gbc = new GridBagConstraints();
