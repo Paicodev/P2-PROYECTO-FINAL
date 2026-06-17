@@ -39,13 +39,10 @@ public class PagoService {
         }
         
         // Validacion para evitar pagos duplicados
-        if (pago.getTipo() == TipoPago.MENSUALIDAD) {
-            LocalDate vencimiento = pago.getMiembro().getFechaVencimiento();
-            if (vencimiento != null && vencimiento.isAfter(LocalDate.now())) {
-                throw new DatosInvalidosException("El miembro ya tiene su mensualidad al día. No puede abonar nuevamente hasta que venza (" + vencimiento + ").");
-            }
-        } else {
-            if (yaPagoEsteMes(pago.getMiembro().getId(), pago.getTipo(), pago.getFecha().toLocalDate())) {
+        if (yaPagoEsteMes(pago.getMiembro().getId(), pago.getTipo(), pago.getFecha().toLocalDate())) {
+            if (pago.getTipo() == TipoPago.MENSUALIDAD) {
+                throw new DatosInvalidosException("El miembro ya abonó una mensualidad este mes. No puede pagar 2 veces en el mismo mes calendario.");
+            } else {
                 throw new DatosInvalidosException("Operación rechazada: El miembro ya registró un pago de tipo " + pago.getTipo().name() + " este mes.");
             }
         }
