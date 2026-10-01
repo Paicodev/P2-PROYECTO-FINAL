@@ -1,15 +1,22 @@
 package com.gym.manager.service;
 
+import java.util.List;
+
 import com.gym.manager.dao.UsuarioDAO;
 import com.gym.manager.exceptions.DatosInvalidosException;
 import com.gym.manager.model.UsuarioSistema;
-import java.util.List;
 
 public class UsuarioService {
     private UsuarioDAO usuarioDAO;
 
+    //constructor para la UI de swing y MySQL
     public UsuarioService() {
         this.usuarioDAO = new UsuarioDAO();
+    }
+
+    //constructor con inyeccion de dependencias para tests y mockito
+    public UsuarioService(UsuarioDAO usuarioDAO){
+        this.usuarioDAO = usuarioDAO;
     }
 
     public void guardarUsuario(UsuarioSistema usuario) {
@@ -41,4 +48,22 @@ public class UsuarioService {
         if (usuario.getUsername() == null || usuario.getUsername().trim().isEmpty()) throw new DatosInvalidosException("El nombre de usuario no puede estar vacío.");
         if (usuario.getPasswordHash() == null || usuario.getPasswordHash().trim().isEmpty()) throw new DatosInvalidosException("La contraseña es obligatoria.");
     }
+
+    //Metodo para autenticar al usuario asi la UI no salta la capa de DAO
+    public boolean autenticar(String username, String password) {
+    if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+        return false;
+    }
+    return usuarioDAO.validarLogin(username, password);
+    }
+    
+    public String obtenerRol(String username) {
+    if (username == null || username.trim().isEmpty()) {
+        return null;
+    }
+    return usuarioDAO.obtenerRol(username);
+}
+
+
+
 }

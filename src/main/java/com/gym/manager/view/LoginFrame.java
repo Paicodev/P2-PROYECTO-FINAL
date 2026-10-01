@@ -1,11 +1,20 @@
 package com.gym.manager.view;
 
 // Importamos las librerias de swing y awt para las fuentes, colores, etc.
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
-import com.gym.manager.dao.UsuarioDAO;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 
-import java.awt.*;
+import com.gym.manager.service.UsuarioService;
 
 public class LoginFrame extends JFrame {
 
@@ -101,12 +110,11 @@ public class LoginFrame extends JFrame {
             String usuario = getUsuario();
             String password = getPassword();
             
-            //Instanciación del DAO para validar el login
-            UsuarioDAO dao = new UsuarioDAO();
+            UsuarioService service = new UsuarioService();
 
             try {
                 // Llamamos al método que va a la BD
-                boolean loginExitoso = dao.validarLogin(usuario, password);
+                boolean loginExitoso = service.autenticar(usuario, password);
 
                 // Mostramos los JOptionPanes según el resultado
                 if (loginExitoso) {
@@ -116,7 +124,7 @@ public class LoginFrame extends JFrame {
                         JOptionPane.INFORMATION_MESSAGE);
                         // lógica para abrir la ventana principal
 
-                        String rol = dao.obtenerRol(usuario);
+                        String rol = service.obtenerRol(usuario);
                         VentanaPrincipal ventanaMain = new VentanaPrincipal(usuario, rol);
 
                         ventanaMain.setVisible(true);
