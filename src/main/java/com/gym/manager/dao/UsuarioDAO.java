@@ -6,138 +6,94 @@ import com.gym.manager.util.DatabaseManager;
 import com.gym.manager.exceptions.ConexionBDException;
 import com.gym.manager.interfaces.DAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.sql.Statement;
-import java.sql.Timestamp;
 
-/**
- * Data Access Object para la entidad UsuarioSistema.
- * Maneja la autenticación y el CRUD de los usuarios del sistema.
- */
 public class UsuarioDAO implements DAO<UsuarioSistema> {
 
-    /**
-     * Valida si las credenciales ingresadas coinciden con un registro en la BD.
-     * Utiliza consultas preparadas (PreparedStatement) para evitar Inyección SQL.
-     * * @param username El nombre de usuario ingresado
-     * @param password La contraseña ingresada
-     * @return true si las credenciales son correctas, false si no lo son
-     * @throws ConexionBDException si ocurre un error de comunicación con MySQL
-     */
     public boolean validarLogin(String username, String password) {
         String sql = "SELECT * FROM UsuarioSistema WHERE username = ? AND password_hash = ?";
-        
-        //Obtenemos la conexión compartida desde DatabaseManager
         Connection conn = DatabaseManager.getInstance().getConnection();
-        
-        //Solo el PreparedStatement va dentro del try-with-resources
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
             pstmt.setString(1, username);
             pstmt.setString(2, password);
-            
             try (ResultSet rs = pstmt.executeQuery()) {
                 return rs.next();
             }
-            
         } catch (SQLException e) {
             throw new ConexionBDException("Error al validar el login en la base de datos.", e);
         }
     }
 
-    // Método nuevo en UsuarioDAO — lo agrega tu compañero
     public String obtenerRol(String username) {
-    String sql = "SELECT rol FROM UsuarioSistema WHERE username = ?";
-    // ... ejecuta la query y devuelve el rol como String
+        String sql = "SELECT rol FROM UsuarioSistema WHERE username = ?";
         Connection conn = DatabaseManager.getInstance().getConnection();
-            
-            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                
-                pstmt.setString(1, username);
-                
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    if (rs.next()) {
-                        return rs.getString("rol");
-                    } else {
-                        return null; // o lanzar excepción si el usuario no existe
-                    }
-                }
-                
-            } catch (SQLException e) {
-                throw new ConexionBDException("Error al obtener el rol del usuario en la base de datos.", e);
-            }
-}
-
-    // =========================================================================
-    // MÉTODOS OBLIGATORIOS POR LA INTERFAZ DAO<T>
-    // =========================================================================
-
-    @Override
-    public void guardar(UsuarioSistema usuario) {
-        String sql = "INSERT INTO UsuarioSistema (username, password_hash, rol, ultimo_acceso, Persona_idPersona) VALUES (?, ?, ?, ?, ?)";
-        Connection conn = DatabaseManager.getInstance().getConnection();
-
-        try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            pstmt.setString(1, usuario.getUsername());
-            pstmt.setString(2, usuario.getPasswordHash());
-            pstmt.setString(3, usuario.getRol().name());
-            
-            if (usuario.getUltimoAcceso() != null) {
-                pstmt.setTimestamp(4, Timestamp.valueOf(usuario.getUltimoAcceso()));
-            } else {
-                pstmt.setNull(4, java.sql.Types.TIMESTAMP);
-            }
-            pstmt.setInt(5, usuario.getPersonaIdPersona());
-
-            pstmt.executeUpdate();
-
-            // Recuperamos el ID autoincremental asignado por MySQL
-            try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    usuario.setIdUsuarioSistema(rs.getInt(1));
-                }
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getString("rol");
+                return null;
             }
         } catch (SQLException e) {
-            throw new ConexionBDException("Error al guardar el nuevo usuario en el sistema.", e);
+            throw new ConexionBDException("Error al obtener el rol del usuario.", e);
         }
     }
 
     @Override
-    public Optional<UsuarioSistema> buscarPorId(int id) {
-        String sql = "SELECT * FROM UsuarioSistema WHERE idUsuarioSistema = ?";
+    public void guardar(UsuarioSistema usuario) {
+        String sqlPersona = "INSERT INTO Persona (nombre, apellido, dni, tipo_persona, fecha_registro) VALUES (?, ?, ?, ?, CURDATE())";
+        String sqlUsuario = "INSERT INTO UsuarioSistema (username, password_hash, rol, Persona_idPersona) VALUES (?, ?, ?, ?)";
         Connection conn = DatabaseManager.getInstance().getConnection();
 
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
+        try {
+            conn.setAutoCommit(false);
+            int idPersonaGenerado = 0;
 
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return Optional.of(mapearUsuario(rs));
+            // 1. Insertamos a la Persona (Staff)
+            try (PreparedStatement pstP = conn.prepareStatement(sqlPersona, Statement.RETURN_GENERATED_KEYS)) {
+                pstP.setString(1, usuario.getNombre());
+                pstP.setString(2, usuario.getApellido());
+                pstP.setString(3, usuario.getDni());
+                pstP.setString(4, usuario.getRol().name());
+                pstP.executeUpdate();
+                try (ResultSet rs = pstP.getGeneratedKeys()) {
+                    if (rs.next()) idPersonaGenerado = rs.getInt(1);
                 }
             }
+
+            // 2. Insertamos al UsuarioSistema
+            try (PreparedStatement pstU = conn.prepareStatement(sqlUsuario, Statement.RETURN_GENERATED_KEYS)) {
+                pstU.setString(1, usuario.getUsername());
+                pstU.setString(2, usuario.getPasswordHash());
+                pstU.setString(3, usuario.getRol().name());
+                pstU.setInt(4, idPersonaGenerado);
+                pstU.executeUpdate();
+                try (ResultSet rs = pstU.getGeneratedKeys()) {
+                    if (rs.next()) usuario.setIdUsuarioSistema(rs.getInt(1));
+                }
+            }
+            conn.commit();
         } catch (SQLException e) {
-            throw new ConexionBDException("Error al buscar el usuario con ID: " + id, e);
+            try { conn.rollback(); } catch (SQLException ex) { }
+            throw new ConexionBDException("Error al registrar el staff y su usuario en la base de datos.", e);
+        } finally {
+            try { conn.setAutoCommit(true); } catch (SQLException e) { }
         }
-        return Optional.empty();
     }
 
     @Override
     public List<UsuarioSistema> obtenerTodos() {
         List<UsuarioSistema> lista = new ArrayList<>();
-        String sql = "SELECT * FROM UsuarioSistema";
+        // Usamos JOIN para traer los datos de la persona
+        String sql = "SELECT u.*, p.nombre, p.apellido, p.dni FROM UsuarioSistema u INNER JOIN Persona p ON u.Persona_idPersona = p.idPersona";
         Connection conn = DatabaseManager.getInstance().getConnection();
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
-
             while (rs.next()) {
-                lista.add(mapearUsuario(rs));
+                lista.add(mapearUsuarioConPersona(rs));
             }
         } catch (SQLException e) {
             throw new ConexionBDException("Error al listar los usuarios del sistema.", e);
@@ -147,44 +103,56 @@ public class UsuarioDAO implements DAO<UsuarioSistema> {
 
     @Override
     public void actualizar(UsuarioSistema usuario) {
-        String sql = "UPDATE UsuarioSistema SET username = ?, password_hash = ?, rol = ?, ultimo_acceso = ? WHERE idUsuarioSistema = ?";
+        String sqlPersona = "UPDATE Persona SET nombre = ?, apellido = ?, dni = ?, tipo_persona = ? WHERE idPersona = ?";
+        String sqlUsuario = "UPDATE UsuarioSistema SET username = ?, password_hash = ?, rol = ? WHERE idUsuarioSistema = ?";
         Connection conn = DatabaseManager.getInstance().getConnection();
 
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, usuario.getUsername());
-            pstmt.setString(2, usuario.getPasswordHash());
-            pstmt.setString(3, usuario.getRol().name());
+        try {
+            conn.setAutoCommit(false);
             
-            if (usuario.getUltimoAcceso() != null) {
-                pstmt.setTimestamp(4, Timestamp.valueOf(usuario.getUltimoAcceso()));
-            } else {
-                pstmt.setNull(4, java.sql.Types.TIMESTAMP);
+            try (PreparedStatement pstP = conn.prepareStatement(sqlPersona)) {
+                pstP.setString(1, usuario.getNombre());
+                pstP.setString(2, usuario.getApellido());
+                pstP.setString(3, usuario.getDni());
+                pstP.setString(4, usuario.getRol().name());
+                pstP.setInt(5, usuario.getPersonaIdPersona());
+                pstP.executeUpdate();
             }
-            pstmt.setInt(5, usuario.getIdUsuarioSistema());
 
-            pstmt.executeUpdate();
+            try (PreparedStatement pstU = conn.prepareStatement(sqlUsuario)) {
+                pstU.setString(1, usuario.getUsername());
+                pstU.setString(2, usuario.getPasswordHash());
+                pstU.setString(3, usuario.getRol().name());
+                pstU.setInt(4, usuario.getIdUsuarioSistema());
+                pstU.executeUpdate();
+            }
+            conn.commit();
         } catch (SQLException e) {
+            try { conn.rollback(); } catch (SQLException ex) { }
             throw new ConexionBDException("Error al actualizar los datos del usuario.", e);
+        } finally {
+            try { conn.setAutoCommit(true); } catch (SQLException e) { }
         }
     }
 
     @Override
     public void eliminar(int id) {
-        String sql = "DELETE FROM UsuarioSistema WHERE idUsuarioSistema = ?";
+        // Al eliminar el usuario, MySQL borra la Persona en cascada (si configuraste bien el ON DELETE CASCADE en schema.sql)
+        // Sino, borramos directo la Persona y el Usuario cae con ella.
+        String sql = "DELETE FROM Persona WHERE idPersona = (SELECT Persona_idPersona FROM UsuarioSistema WHERE idUsuarioSistema = ?)";
         Connection conn = DatabaseManager.getInstance().getConnection();
-
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            throw new ConexionBDException("Error al eliminar el usuario con ID: " + id, e);
+            throw new ConexionBDException("Error al revocar el acceso del usuario con ID: " + id, e);
         }
     }
 
-    /**
-     * Método auxiliar privado para mapear las filas de la base de datos a objetos Java.
-     */
-    private UsuarioSistema mapearUsuario(ResultSet rs) throws SQLException {
+    @Override
+    public Optional<UsuarioSistema> buscarPorId(int id) { return Optional.empty(); }
+
+    private UsuarioSistema mapearUsuarioConPersona(ResultSet rs) throws SQLException {
         UsuarioSistema user = new UsuarioSistema();
         user.setIdUsuarioSistema(rs.getInt("idUsuarioSistema"));
         user.setUsername(rs.getString("username"));
@@ -192,10 +160,13 @@ public class UsuarioDAO implements DAO<UsuarioSistema> {
         user.setRol(RolUsuario.valueOf(rs.getString("rol")));
         
         Timestamp timestamp = rs.getTimestamp("ultimo_acceso");
-        if (timestamp != null) {
-            user.setUltimoAcceso(timestamp.toLocalDateTime());
-        }
+        if (timestamp != null) user.setUltimoAcceso(timestamp.toLocalDateTime());
+        
         user.setPersonaIdPersona(rs.getInt("Persona_idPersona"));
+        user.setNombre(rs.getString("nombre"));
+        user.setApellido(rs.getString("apellido"));
+        user.setDni(rs.getString("dni"));
+        
         return user;
     }
 }

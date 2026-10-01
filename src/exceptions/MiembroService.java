@@ -64,6 +64,10 @@ public class MiembroService {
         return miembroDAO.buscarPorId(id);
     }
 
+    public Optional<Miembro> buscarPorDni(String dni) {
+        return miembroDAO.buscarPorDNI(dni);
+    }
+
     public List<Miembro> obtenerTodos() {
         return miembroDAO.obtenerTodos();
     }

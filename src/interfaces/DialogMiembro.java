@@ -56,7 +56,13 @@ public class DialogMiembro extends JDialog {
         comboPlan.setForeground(TEXTO_BLANCO);
         cargarPlanes();
 
-        comboEstado = new JComboBox<>(EstadoMiembro.values());
+        // Solo cargamos los estados manuales permitidos (ocultamos VENCIDO por defecto)
+        comboEstado = new JComboBox<>();
+        for (EstadoMiembro est : EstadoMiembro.values()) {
+            if (est != EstadoMiembro.VENCIDO) {
+                comboEstado.addItem(est);
+            }
+        }
         comboEstado.setBackground(BG_INPUTS);
         comboEstado.setForeground(TEXTO_BLANCO);
 
@@ -110,6 +116,10 @@ public class DialogMiembro extends JDialog {
         txtDni.setText(m.getDni());
         txtEmail.setText(m.getEmail());
         txtTelefono.setText(m.getTelefono());
+        // Si el socio ya está vencido, le agregamos la opción al combo para que pueda mostrarse
+        if (m.getEstado() == EstadoMiembro.VENCIDO) {
+            comboEstado.addItem(EstadoMiembro.VENCIDO);
+        }
         comboEstado.setSelectedItem(m.getEstado());
         
         // Seleccionar el plan correcto en el combo

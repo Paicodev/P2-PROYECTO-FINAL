@@ -15,7 +15,9 @@ public class UsuarioSistema {
     private RolUsuario rol;
     private LocalDateTime ultimoAcceso;
     private int personaIdPersona;
-
+    private String nombre;
+    private String apellido;
+    private String dni;
     /**
      * Constructor vacío requerido para la instanciación desde la Base de Datos.
      */
@@ -42,6 +44,15 @@ public class UsuarioSistema {
 
     // --- GETTERS Y SETTERS ---
 
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+
+    public String getApellido() { return apellido; }
+    public void setApellido(String apellido) { this.apellido = apellido; }
+
+    public String getDni() { return dni; }
+    public void setDni(String dni) { this.dni = dni; }
+    
     public int getIdUsuarioSistema() { return idUsuarioSistema; }
     public void setIdUsuarioSistema(int idUsuarioSistema) { this.idUsuarioSistema = idUsuarioSistema; }
 

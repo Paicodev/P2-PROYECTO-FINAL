@@ -6,7 +6,6 @@ import com.gym.manager.dao.UsuarioDAO;
 import com.gym.manager.exceptions.DatosInvalidosException;
 import com.gym.manager.model.UsuarioSistema;
 
-public class UsuarioService {
 
     private UsuarioDAO usuarioDAO;
 
