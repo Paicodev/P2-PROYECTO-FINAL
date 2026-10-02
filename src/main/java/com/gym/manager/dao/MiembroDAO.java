@@ -16,18 +16,18 @@ import java.util.stream.Collectors;
 
 public class MiembroDAO implements DAO<Miembro> {
 
-    //MÉTODOS OBLIGATORIOS DE LA INTERFACE DAO
+    // MÉTODOS OBLIGATORIOS DE LA INTERFACE DAO
     @Override
     public void guardar(Miembro miembro) {
         String sqlPersona = "INSERT INTO Persona (nombre, apellido, dni, email, telefono, tipo_persona, fecha_registro) VALUES (?, ?, ?, ?, ?, 'MIEMBRO', ?)";
         String sqlMiembro = "INSERT INTO Miembros (fecha_inscripcion, fecha_vencimiento, estado, Planes_id_planes, Persona_idPersona) VALUES (?, ?, ?, ?, ?)";
-        
+
         Connection conn = DatabaseManager.getInstance().getConnection();
-        
+
         try {
             // INICIAMOS LA TRANSACCIÓN (no se guarda automaticamente)
             conn.setAutoCommit(false);
-            
+
             int idPersonaGenerado = 0;
 
             // INSERTAMOS LA PERSONA
@@ -37,10 +37,10 @@ public class MiembroDAO implements DAO<Miembro> {
                 pstmtPersona.setString(3, miembro.getDni());
                 pstmtPersona.setString(4, miembro.getEmail());
                 pstmtPersona.setString(5, miembro.getTelefono());
-                pstmtPersona.setDate(6, Date.valueOf(miembro.getFechaInscripcion())); 
-                
+                pstmtPersona.setDate(6, Date.valueOf(miembro.getFechaInscripcion()));
+
                 pstmtPersona.executeUpdate();
-                
+
                 // Capturamos el ID que MySQL le dio a la Persona
                 try (ResultSet rs = pstmtPersona.getGeneratedKeys()) {
                     if (rs.next()) {
@@ -56,25 +56,26 @@ public class MiembroDAO implements DAO<Miembro> {
             try (PreparedStatement pstmtMiembro = conn.prepareStatement(sqlMiembro, Statement.RETURN_GENERATED_KEYS)) {
                 pstmtMiembro.setDate(1, Date.valueOf(miembro.getFechaInscripcion()));
                 pstmtMiembro.setDate(2, Date.valueOf(miembro.getFechaVencimiento()));
-                pstmtMiembro.setString(3, miembro.getEstado().name()); 
-                pstmtMiembro.setInt(4, miembro.getPlan().getId()); 
-                pstmtMiembro.setInt(5, idPersonaGenerado); 
-                
+                pstmtMiembro.setString(3, miembro.getEstado().name());
+                pstmtMiembro.setInt(4, miembro.getPlan().getId());
+                pstmtMiembro.setInt(5, idPersonaGenerado);
+
                 pstmtMiembro.executeUpdate();
             }
 
-            // CONFIRMAMOS LA TRANSACCIÓN 
+            // CONFIRMAMOS LA TRANSACCIÓN
             conn.commit();
 
         } catch (SQLException e) {
-            // SI ALGO FALLA, SE HACE ROLLBACK (Deshacemos toda la transaccion para no dejar datos a medias)
+            // SI ALGO FALLA, SE HACE ROLLBACK (Deshacemos toda la transaccion para no dejar
+            // datos a medias)
             try {
                 conn.rollback();
             } catch (SQLException ex) {
                 System.err.println("Error crítico al hacer rollback: " + ex.getMessage());
             }
             throw new ConexionBDException("Error al guardar el miembro. Se deshicieron los cambios.", e);
-            
+
         } finally {
             // DEVOLVEMOS LA CONEXIÓN A SU ESTADO NORMAL
             try {
@@ -84,13 +85,14 @@ public class MiembroDAO implements DAO<Miembro> {
             }
         }
     }
+
     @Override
     public Optional<Miembro> buscarPorId(int id) {
         String buscar = "SELECT * FROM Persona p JOIN Miembros m ON p.idPersona = m.Persona_idPersona WHERE p.idPersona = ?";
 
         Connection conn = DatabaseManager.getInstance().getConnection();
 
-        try(PreparedStatement pstmt = conn.prepareStatement(buscar)) {
+        try (PreparedStatement pstmt = conn.prepareStatement(buscar)) {
             pstmt.setInt(1, id);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -107,27 +109,28 @@ public class MiembroDAO implements DAO<Miembro> {
                 PlanDAO planDAO = new PlanDAO();
                 Plan planAsignado = planDAO.buscarPorId(idPlan).orElse(null);
 
-                Miembro miembro = new Miembro(fechaInscripcion, fechaVencimiento, planAsignado, estado, id, nombre, apellido, dni, email, telefono);
+                Miembro miembro = new Miembro(fechaInscripcion, fechaVencimiento, planAsignado, estado, id, nombre,
+                        apellido, dni, email, telefono);
                 return Optional.of(miembro);
             }
         } catch (SQLException e) {
             System.out.println("Error al buscar miembro por id: " + e.getMessage());
-        }    
+        }
         return Optional.empty();
     }
 
     @Override
     public List<Miembro> obtenerTodos() {
         actualizarEstadosVencidos();
-        
+
         List<Miembro> lista = new ArrayList<>();
         String todosSQL = "SELECT * FROM Persona p JOIN Miembros m ON p.idPersona = m.Persona_idPersona";
 
         Connection conn = DatabaseManager.getInstance().getConnection();
 
-        try(PreparedStatement pstmt = conn.prepareStatement(todosSQL) ){
+        try (PreparedStatement pstmt = conn.prepareStatement(todosSQL)) {
             ResultSet rs = pstmt.executeQuery();
-            
+
             while (rs.next()) {
                 int id = rs.getInt("idPersona");
                 String nombre = rs.getString("nombre");
@@ -143,11 +146,12 @@ public class MiembroDAO implements DAO<Miembro> {
                 PlanDAO planDAO = new PlanDAO();
                 Plan planAsignado = planDAO.buscarPorId(idPlan).orElse(null);
 
-                Miembro miembro = new Miembro(fechaInscripcion, fechaVencimiento, planAsignado, estado, id, nombre, apellido, dni, email, telefono);
+                Miembro miembro = new Miembro(fechaInscripcion, fechaVencimiento, planAsignado, estado, id, nombre,
+                        apellido, dni, email, telefono);
 
                 lista.add(miembro);
             }
-        } catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println("Error al obtener todos los miembros " + e.getMessage());
         }
         return lista;
@@ -161,12 +165,12 @@ public class MiembroDAO implements DAO<Miembro> {
         Connection conn = DatabaseManager.getInstance().getConnection();
         boolean autoCommitOriginal = true;
 
-        try{
+        try {
             autoCommitOriginal = conn.getAutoCommit();
             if (autoCommitOriginal) {
                 conn.setAutoCommit(false);
             }
-            try(PreparedStatement pstmtPersona = conn.prepareStatement(sqlPersona) ){
+            try (PreparedStatement pstmtPersona = conn.prepareStatement(sqlPersona)) {
                 pstmtPersona.setString(1, miembro.getNombre());
                 pstmtPersona.setString(2, miembro.getApellido());
                 pstmtPersona.setString(3, miembro.getDni());
@@ -176,10 +180,10 @@ public class MiembroDAO implements DAO<Miembro> {
 
                 pstmtPersona.executeUpdate();
             }
-            try(PreparedStatement pstmtMiembro = conn.prepareStatement(sqlMiembro)) {
+            try (PreparedStatement pstmtMiembro = conn.prepareStatement(sqlMiembro)) {
                 pstmtMiembro.setDate(1, Date.valueOf(miembro.getFechaVencimiento()));
                 pstmtMiembro.setString(2, miembro.getEstado().name());
-                if(miembro.getPlan() != null){
+                if (miembro.getPlan() != null) {
                     pstmtMiembro.setInt(3, miembro.getPlan().getId());
                 } else {
                     pstmtMiembro.setNull(3, java.sql.Types.INTEGER);
@@ -193,19 +197,21 @@ public class MiembroDAO implements DAO<Miembro> {
             }
         } catch (SQLException e) {
             try {
-                if (autoCommitOriginal) conn.rollback();
+                if (autoCommitOriginal)
+                    conn.rollback();
             } catch (SQLException ex) {
                 System.out.println("Error al hacer rollback " + ex.getMessage());
             }
-            System.out.println("Error al actualizar miembro " + e.getMessage());    
+            System.out.println("Error al actualizar miembro " + e.getMessage());
         } finally {
             try {
-                if (autoCommitOriginal) conn.setAutoCommit(true);
+                if (autoCommitOriginal)
+                    conn.setAutoCommit(true);
             } catch (SQLException e) {
                 System.out.println("Error al restaurar el auto commit " + e.getMessage());
             }
         }
-        
+
     }
 
     @Override
@@ -215,48 +221,47 @@ public class MiembroDAO implements DAO<Miembro> {
 
         Connection conn = DatabaseManager.getInstance().getConnection();
 
-        try{
+        try {
             conn.setAutoCommit(false);
-            try(PreparedStatement pstmtMiembro = conn.prepareStatement(sqlMiembro)){
+            try (PreparedStatement pstmtMiembro = conn.prepareStatement(sqlMiembro)) {
                 pstmtMiembro.setInt(1, id);
                 pstmtMiembro.executeUpdate();
             }
-            try(PreparedStatement pstmtPersona = conn.prepareStatement(sqlPersona)){
+            try (PreparedStatement pstmtPersona = conn.prepareStatement(sqlPersona)) {
                 pstmtPersona.setInt(1, id);
                 pstmtPersona.executeUpdate();
             }
             conn.commit();
-        } catch(SQLException e){
-            try{
+        } catch (SQLException e) {
+            try {
                 conn.rollback();
-            } catch(SQLException ex) {
+            } catch (SQLException ex) {
                 System.out.println("Error al hacer rollback " + ex.getMessage());
             }
             System.out.println("Error al eliminar miembro " + e.getMessage());
-        }finally{
+        } finally {
             try {
                 conn.setAutoCommit(true);
             } catch (SQLException e) {
                 System.out.println("Error al restaurar auto commit: " + e.getMessage());
             }
-        }    
+        }
     }
 
-
     // MÉTODOS DE MIEMBRO DAO
-    public Optional<Miembro> buscarPorDNI(String dni){
+    public Optional<Miembro> buscarPorDNI(String dni) {
         actualizarEstadosVencidos();
-        
+
         String sqlBuscarDNI = "SELECT * FROM persona p JOIN miembros m ON p.idPersona = m.Persona_idPersona WHERE p.dni = ?";
-        
+
         Connection conn = DatabaseManager.getInstance().getConnection();
 
-        try(PreparedStatement pstmtBuscar = conn.prepareStatement(sqlBuscarDNI)) {
+        try (PreparedStatement pstmtBuscar = conn.prepareStatement(sqlBuscarDNI)) {
             pstmtBuscar.setString(1, dni);
 
             ResultSet rs = pstmtBuscar.executeQuery();
-            
-            if(rs.next()){
+
+            if (rs.next()) {
                 int id = rs.getInt("idPersona");
                 String nombre = rs.getString("nombre");
                 String apellido = rs.getString("apellido");
@@ -270,7 +275,8 @@ public class MiembroDAO implements DAO<Miembro> {
                 PlanDAO planDAO = new PlanDAO();
                 Plan planAsignado = planDAO.buscarPorId(idPlan).orElse(null);
 
-                Miembro miembro = new Miembro(fechaInscripcion, fechaVencimiento, planAsignado, estado, id, nombre, apellido, dni, email, telefono);
+                Miembro miembro = new Miembro(fechaInscripcion, fechaVencimiento, planAsignado, estado, id, nombre,
+                        apellido, dni, email, telefono);
                 return Optional.of(miembro);
             }
         } catch (SQLException e) {
@@ -279,20 +285,20 @@ public class MiembroDAO implements DAO<Miembro> {
         return Optional.empty();
     }
 
-    public List<Miembro> obtenerActivos(){
+    public List<Miembro> obtenerActivos() {
         return this.obtenerTodos().stream()
                 .filter(m -> m.estaActivo())
                 .collect(Collectors.toList());
     }
 
-    public List<Miembro> obtenerPorVencer(int dias){
+    public List<Miembro> obtenerPorVencer(int dias) {
         return this.obtenerTodos().stream()
                 .filter(m -> m.diasParaVencer() <= dias && m.diasParaVencer() >= 0)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Actualiza automáticamente en la base de datos a los miembros cuya fecha 
+     * Actualiza automáticamente en la base de datos a los miembros cuya fecha
      * de vencimiento ya pasó, pasándolos a estado VENCIDO.
      */
     private void actualizarEstadosVencidos() {
@@ -303,5 +309,25 @@ public class MiembroDAO implements DAO<Miembro> {
         } catch (SQLException e) {
             System.out.println("Error al actualizar miembros vencidos: " + e.getMessage());
         }
+    }
+
+    /**
+     * Actualiza la fecha de vencimiento y el estado de membresía de un socio.
+     * Utilizado principalmente al registrar pagos de cuota o clases.
+     */
+    public void actualizarVencimientoYEstado(int idPersona, LocalDate nuevoVencimiento, EstadoMiembro nuevoEstado) {
+        String sql = "UPDATE Miembros SET fecha_vencimiento = ?, estado = ? WHERE Persona_idPersona = ?";
+
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement pstm = conn.prepareStatement(sql)) {
+            pstm.setDate(1, Date.valueOf(nuevoVencimiento));
+            pstm.setString(2, nuevoEstado.name());
+            pstm.setInt(3, idPersona);
+
+            pstm.executeUpdate();
+        } catch (SQLException e) {
+            throw new ConexionBDException("Error al actualizar el vencimiento y estado del miembro ID:" + idPersona, e);
+        }
+
     }
 }
