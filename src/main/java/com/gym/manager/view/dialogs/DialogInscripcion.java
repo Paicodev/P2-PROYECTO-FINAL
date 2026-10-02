@@ -1,7 +1,7 @@
 package com.gym.manager.view.dialogs;
 
 import com.gym.manager.dao.ClaseDAO;
-import com.gym.manager.dao.InscripcionesDAO;
+import com.gym.manager.service.InscripcionesService;
 import com.gym.manager.dao.MiembroDAO;
 import com.gym.manager.model.ClaseGimnasio;
 import com.gym.manager.model.Inscripciones;
@@ -125,11 +125,11 @@ public class DialogInscripcion extends JDialog {
         Inscripciones nueva = new Inscripciones(LocalDate.now(), false, claseSel.getIdClase(), miembroSel.getId());
 
         try {
-            InscripcionesDAO dao = new InscripcionesDAO();
-            dao.registrar(nueva); // Pasa por todas las validaciones de BD
+            InscripcionesService service = new InscripcionesService();
+            service.registrar(nueva); // Pasa por todas las validaciones de BD
             this.inscripcionRealizada = true;
             JOptionPane.showMessageDialog(this, "¡Inscripción exitosa!");
-            dispose(); 
+            dispose();
         } catch (DatosInvalidosException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Inscripción Rechazada", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
