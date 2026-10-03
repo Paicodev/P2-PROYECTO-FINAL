@@ -27,8 +27,13 @@ public class DatabaseManager {
 
     //haciendolo sincronizado nos aseguramos a que si entran dos hilos al mismo tiempo no generen una instancia cada uno
     public static synchronized DatabaseManager getInstance() {
-        if (instance == null) {
-            instance = new DatabaseManager();
+        // Si no existe, o si existe pero la conexión se murió de imprevisto, crea una nueva
+        try {
+            if (instance == null || instance.getConnection() == null || instance.getConnection().isClosed()) {
+                instance = new DatabaseManager();
+            }
+        } catch (SQLException e) {
+            System.err.println("Error verificando estado de conexión: " + e.getMessage());
         }
         return instance;
     }
@@ -45,6 +50,10 @@ public class DatabaseManager {
             }
         } catch (SQLException e) {
             System.err.println("Error al cerrar: " + e.getMessage());
+        }
+        finally {
+            instance = null; // Reinicia la instancia para permitir una nueva conexión en el futuro
+            connection = null; // Reinicia la conexión para permitir una nueva conexión en el futuro
         }
     }
 }
