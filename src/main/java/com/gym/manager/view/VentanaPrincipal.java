@@ -2,15 +2,16 @@ package com.gym.manager.view;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
 import com.gym.manager.view.panels.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class VentanaPrincipal extends JFrame {
 
-    // ── Paleta de colores, declaro acá asi no tengo que repetir new Color(...) cada vez que quiero usar un color específico
+    // ── Paleta de colores ──────────────────────────────────────────────────
     private static final Color SIDEBAR_BG     = new Color(22, 38, 45);
     private static final Color SIDEBAR_HOVER  = new Color(35, 58, 70);
     private static final Color SIDEBAR_ACTIVO = new Color(0, 150, 136);
@@ -24,6 +25,9 @@ public class VentanaPrincipal extends JFrame {
     private JPanel panelCentral;
     private CardLayout cardLayout;
     private JButton botonActivo;           // botón resaltado actualmente
+    
+    // Lista para rastrear qué paneles ya fueron construidos (Lazy Loading)
+    private final List<String> panelesCargadosEnMemoria = new ArrayList<>();
 
     // ── Constructor ────────────────────────────────────────────────────────
     public VentanaPrincipal(String usuario, String rol) {
@@ -33,7 +37,7 @@ public class VentanaPrincipal extends JFrame {
         inicializarVentana();
         construirMenuBar();             // menú superior
         construirMenuLateral();         // sidebar con botones de navegación
-        construirPanelCentral();        // zona de contenido con CardLayout
+        construirPanelCentral();        // zona de contenido vacía inicial
     }
 
     // ── Configuración base ─────────────────────────────────────────────────
@@ -49,7 +53,6 @@ public class VentanaPrincipal extends JFrame {
     // ── Barra de menú superior (JMenuBar) ─────────────────────────────────
     private void construirMenuBar() {
         JMenuBar menuBar = new JMenuBar();
-
         JMenu menuArchivo = new JMenu("Archivo");
 
         JMenuItem itemCerrarSesion = new JMenuItem("Cerrar sesión");
@@ -63,7 +66,6 @@ public class VentanaPrincipal extends JFrame {
         menuArchivo.add(itemSalir);
 
         JMenu menuAyuda = new JMenu("Ayuda");
-
         JMenuItem itemAcerca = new JMenuItem("Acerca de");
         itemAcerca.addActionListener(e -> JOptionPane.showMessageDialog(
             this,
@@ -74,7 +76,7 @@ public class VentanaPrincipal extends JFrame {
         menuAyuda.add(itemAcerca);
 
         menuBar.add(menuArchivo);
-        menuBar.add(Box.createHorizontalGlue()); // empuja Ayuda a la derecha
+        menuBar.add(Box.createHorizontalGlue());
         menuBar.add(menuAyuda);
 
         setJMenuBar(menuBar);
@@ -105,7 +107,6 @@ public class VentanaPrincipal extends JFrame {
         lblRol.setFont(new Font("Segoe UI", Font.BOLD, 11));
         lblRol.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // ── Separador ──
         JSeparator sep = new JSeparator();
         sep.setForeground(new Color(50, 70, 80));
         sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
@@ -122,11 +123,11 @@ public class VentanaPrincipal extends JFrame {
         // ── Botones de navegación ──
         agregarBotonMenu(panelLateral, "Miembros y Planes",      "miembros");
         agregarBotonMenu(panelLateral, "Planes de Entrenamiento", "planes");
-        agregarBotonMenu(panelLateral, "Clases",          "clases");
-        agregarBotonMenu(panelLateral, "Inscripciones",   "inscripciones");
+        agregarBotonMenu(panelLateral, "Clases",                 "clases");
+        agregarBotonMenu(panelLateral, "Inscripciones",          "inscripciones");
         agregarBotonMenu(panelLateral, "Registro de Pagos",      "pagos");
 
-        // Reportes solo para ADMIN → control de sesión por rol
+        // Reportes solo para ADMIN
         if ("ADMIN".equalsIgnoreCase(rolUsuario)) {
             agregarBotonMenu(panelLateral, "Reportes", "reportes");
             agregarBotonMenu(panelLateral, "Gestión de Instructores", "instructores");
@@ -152,7 +153,6 @@ public class VentanaPrincipal extends JFrame {
         btn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Efecto hover
         btn.addMouseListener(new MouseAdapter() {
             @Override public void mouseEntered(MouseEvent e) {
                 if (btn != botonActivo) btn.setBackground(SIDEBAR_HOVER);
@@ -162,9 +162,9 @@ public class VentanaPrincipal extends JFrame {
             }
         });
 
-        // Acción: cambiar panel + resaltar botón activo
         btn.addActionListener(e -> {
-            cardLayout.show(panelCentral, card);
+            cargarYMostrarPanel(card); 
+            
             if (botonActivo != null) botonActivo.setBackground(SIDEBAR_BG);
             btn.setBackground(SIDEBAR_ACTIVO);
             botonActivo = btn;
@@ -188,40 +188,58 @@ public class VentanaPrincipal extends JFrame {
         return btn;
     }
 
-    // ── Panel central con CardLayout ───────────────────────────────────────
+    // ── Panel central con CardLayout (Arranque ultra rápido) ───────────────
     private void construirPanelCentral() {
         cardLayout    = new CardLayout();
         panelCentral  = new JPanel(cardLayout);
         panelCentral.setBackground(CENTRAL_BG);
 
-        // Panel de bienvenida, el que se va a ver por default
+        // SOLO inicializamos la pantalla de bienvenida al arrancar
         panelCentral.add(crearPanelBienvenida(), "bienvenida");
+        panelesCargadosEnMemoria.add("bienvenida");
 
-        PanelMiembros panelMiembros = new PanelMiembros();
-        panelCentral.add(panelMiembros, "miembros");
-
-        PanelPlan panelPlan = new PanelPlan();
-        panelCentral.add(panelPlan, "planes");
-
-        panelCentral.add(new PanelInstructores(), "instructores");
-
-        PanelClases panelClases = new PanelClases();
-        panelCentral.add(panelClases, "clases");
-
-        PanelInscripciones panelInscripciones = new PanelInscripciones();
-        panelCentral.add(panelInscripciones, "inscripciones");
-
-        PanelPagos panelPagos = new PanelPagos();
-        panelCentral.add(panelPagos, "pagos");
-
-        panelCentral.add(new PanelReportes(), "reportes");
-
-        panelCentral.add(new PanelUsuarios(), "usuarios");
-        
         add(panelCentral, BorderLayout.CENTER);
-
     }
 
+    // ── LÓGICA DE LA CARGA PEREZOSA (LAZY LOADING) ─────────────────────────
+    private void cargarYMostrarPanel(String nombreCard) {
+        // Si el panel no está en nuestra lista, significa que nunca se abrió. Lo creamos AHORA.
+        if (!panelesCargadosEnMemoria.contains(nombreCard)) {
+            JPanel nuevoPanel = instanciarPanelPorNombre(nombreCard);
+            
+            if (nuevoPanel != null) {
+                panelCentral.add(nuevoPanel, nombreCard);
+                panelesCargadosEnMemoria.add(nombreCard);
+            }
+        }
+        
+        // Mostrar la carta (ya sea que se acaba de crear o que ya existía en memoria)
+        cardLayout.show(panelCentral, nombreCard);
+    }
+
+    private JPanel instanciarPanelPorNombre(String nombreCard) {
+        // Control de seguridad y fábrica de paneles
+        switch (nombreCard) {
+            case "miembros":      return new PanelMiembros();
+            case "planes":        return new PanelPlan();
+            case "clases":        return new PanelClases();
+            case "inscripciones": return new PanelInscripciones();
+            case "pagos":         return new PanelPagos();
+            
+            // Seguridad: Doble validación por las dudas para que un rol Recepcionista 
+            // no pueda forzar la creación de estos paneles en memoria
+            case "instructores": 
+                if ("ADMIN".equalsIgnoreCase(rolUsuario)) return new PanelInstructores();
+                break;
+            case "reportes":     
+                if ("ADMIN".equalsIgnoreCase(rolUsuario)) return new PanelReportes();
+                break;
+            case "usuarios":     
+                if ("ADMIN".equalsIgnoreCase(rolUsuario)) return new PanelUsuarios();
+                break;
+        }
+        return null;
+    }
 
     private JPanel crearPanelBienvenida() {
         JPanel panel = new JPanel(new GridBagLayout());
