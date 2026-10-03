@@ -42,6 +42,9 @@ public class PagoService {
 
     public void registrarPago(Pago pago) {
         // Validaciones de negocio
+        if (pago == null) {
+            throw new DatosInvalidosException("El pago no puede ser nulo.");
+        }
         if (pago.getMonto() <= 0) {
             throw new DatosInvalidosException("El monto del pago debe ser mayor a 0.");
         }
@@ -118,6 +121,9 @@ public class PagoService {
     }
 
     public void eliminarPago(int id) {
+        if (id <= 0) {
+            throw new DatosInvalidosException("El ID del pago a eliminar debe ser mayor a 0.");
+        }
         pagoDAO.eliminar(id);
     }
 
@@ -126,6 +132,9 @@ public class PagoService {
     }
 
     public Optional<Pago> buscarPorId(int id) {
+        if (id <= 0) {
+            throw new DatosInvalidosException("El ID del pago a buscar debe ser mayor a 0.");
+        }
         return pagoDAO.buscarPorId(id);
     }
 }

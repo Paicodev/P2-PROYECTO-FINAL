@@ -16,12 +16,18 @@ import java.util.Optional;
 
 public class PagoDAO implements DAO<Pago> {
 
-    private Connection conexion;
+    private final MiembroDAO miembroDAO;
 
     public PagoDAO() {
-        // 1. Obtenemos la conexión única usando el Singleton que ya existe en el
-        // proyecto
-        this.conexion = DatabaseManager.getInstance().getConnection();
+        this.miembroDAO = new MiembroDAO();
+    }
+
+    public PagoDAO(MiembroDAO miembroDAO) {
+        this.miembroDAO = miembroDAO;
+    }
+
+    public Connection getConexion() {
+        return DatabaseManager.getInstance().getConnection();
     }
 
     @Override
@@ -30,7 +36,7 @@ public class PagoDAO implements DAO<Pago> {
         String sql = "INSERT INTO Pagos (Miembros_idMiembros, monto, fecha_pago, tipo, estado, descripcion) " +
                 "VALUES ((SELECT idMiembros FROM Miembros WHERE Persona_idPersona = ? ORDER BY idMiembros DESC LIMIT 1), ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement stmt = getConexion().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             // 3. Reemplazamos los "?" con los datos de nuestro objeto Pago
             stmt.setInt(1, pago.getMiembro().getId());
@@ -60,7 +66,7 @@ public class PagoDAO implements DAO<Pago> {
     public Optional<Pago> buscarPorId(int id) {
         String sql = "SELECT p.*, m.Persona_idPersona FROM Pagos p JOIN Miembros m ON p.Miembros_idMiembros = m.idMiembros WHERE p.idPagos = ?";
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+        try (PreparedStatement stmt = getConexion().prepareStatement(sql)) {
             stmt.setInt(1, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -80,7 +86,7 @@ public class PagoDAO implements DAO<Pago> {
         List<Pago> lista = new ArrayList<>();
         String sql = "SELECT p.*, m.Persona_idPersona FROM Pagos p JOIN Miembros m ON p.Miembros_idMiembros = m.idMiembros";
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql);
+        try (PreparedStatement stmt = getConexion().prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -97,7 +103,7 @@ public class PagoDAO implements DAO<Pago> {
     public void actualizar(Pago pago) {
         String sql = "UPDATE Pagos SET Miembros_idMiembros = (SELECT idMiembros FROM Miembros WHERE Persona_idPersona = ?), monto = ?, fecha_pago = ?, tipo = ?, estado = ?, descripcion = ? WHERE idPagos = ?";
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+        try (PreparedStatement stmt = getConexion().prepareStatement(sql)) {
             stmt.setInt(1, pago.getMiembro().getId());
             stmt.setDouble(2, pago.getMonto());
             stmt.setDate(3, java.sql.Date.valueOf(pago.getFecha().toLocalDate()));
@@ -116,7 +122,7 @@ public class PagoDAO implements DAO<Pago> {
     public void eliminar(int id) {
         String sql = "DELETE FROM Pagos WHERE idPagos = ?";
 
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+        try (PreparedStatement stmt = getConexion().prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -128,17 +134,9 @@ public class PagoDAO implements DAO<Pago> {
      * Método auxiliar para transformar un ResultSet en un objeto Pago
      */
     private Pago mapearPago(ResultSet rs) throws SQLException {
-        // Instanciamos un Miembro temporal con datos de relleno válidos solo para
-        // guardar su ID.
-        // En un futuro, aquí se debería usar un
-        // MiembroDAO.buscarPorId(rs.getInt("Miembros_idMiembros"))
-        // Miembro miembro = new Miembro(null, null, null, null,
-        // rs.getInt("Miembros_idMiembros"),
-        // "NombreTemp", "ApellidoTemp", "00000000", "test@test.com", "0000000000");
-
         int idPersona = rs.getInt("Persona_idPersona");
-        MiembroDAO miembroDAO = new MiembroDAO();
-        Miembro miembro = miembroDAO.buscarPorId(idPersona)
+
+        Miembro miembro = this.miembroDAO.buscarPorId(idPersona)
                 .orElseGet(() -> new Miembro(null, null, null, null, idPersona,
                         "NombreTemp", "ApellidoTemp", "00000000", "test@test.com", "0000000000"));
 
