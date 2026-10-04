@@ -1,7 +1,3 @@
-<<<<<<< Updated upstream
-public class ReporteServiceTest {
-    
-=======
 package com.gym.manager.service;
 
 import com.gym.manager.dao.InstructorDAO;
@@ -44,5 +40,4 @@ public class ReporteServiceTest {
 
         assertEquals(15000.0, resultado); //comprueba que el resultado obtenido sea exactamente 15.000
     }
->>>>>>> Stashed changes
 }
