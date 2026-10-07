@@ -2,6 +2,7 @@ package com.gym.manager.service;
 
 import com.gym.manager.dao.InstructorDAO;
 import com.gym.manager.dao.PagoDAO;
+import com.gym.manager.model.Instructor;
 import com.gym.manager.model.Pago;
 import com.gym.manager.model.enums.EstadoPago;
 import org.junit.jupiter.api.Test;
@@ -10,8 +11,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
-
 public class ReporteServiceTest {
+    //test unitario  que solamente suma pagados
     @Test
     void calcularIngresosSoloSumaPagosPagados(){
         PagoDAO pagoDAO = mock(PagoDAO.class); //creamos un DAO falso. no va a msql
@@ -39,5 +40,59 @@ public class ReporteServiceTest {
         double resultado = reporteService.calcularIngresos();
 
         assertEquals(15000.0, resultado); //comprueba que el resultado obtenido sea exactamente 15.000
+    }
+    //test tenemos el balance positivo.
+    @Test 
+    void calcularBalanceNetodaSupervitCuandoLosIngresosSuperanLosGastos(){
+        PagoDAO pagoDAO = mock(PagoDAO.class);
+        InstructorDAO instructorDAO = mock(InstructorDAO.class);
+
+        ReporteService reporteService =
+        new ReporteService(pagoDAO, instructorDAO);
+
+        double resultado =
+        reporteService.calcularBalanceNeto(50000.0, 30000.0);
+
+        assertEquals(20000.0, resultado);
+        
+    }
+    //balance negativo
+    @Test 
+    void calcularBalanceNetoDaDeficitCuandoLosGastosSuperanLosIngresos(){
+        PagoDAO pagoDAO = mock(PagoDAO.class);
+        InstructorDAO instructorDAO = mock(InstructorDAO.class);
+
+        ReporteService reporteService =
+        new ReporteService(pagoDAO, instructorDAO);
+
+        double resultado =
+        reporteService.calcularBalanceNeto(30000.0, 50000.0);
+
+        assertEquals(-20000.0, resultado);
+    }
+        @Test
+    void calcularBalancePorMesDaDeficitCuandoNoHayPagos() {
+        PagoDAO pagoDAO = mock(PagoDAO.class);
+        InstructorDAO instructorDAO = mock(InstructorDAO.class);
+
+        when(pagoDAO.obtenerTodos())
+                .thenReturn(List.of());
+
+        Instructor instructor1 = mock(Instructor.class);
+        Instructor instructor2 = mock(Instructor.class);
+
+        when(instructor1.getSueldo()).thenReturn(20000.0);
+        when(instructor2.getSueldo()).thenReturn(10000.0);
+
+        when(instructorDAO.obtenerTodos())
+                .thenReturn(List.of(instructor1, instructor2));
+
+        ReporteService reporteService =
+                new ReporteService(pagoDAO, instructorDAO);
+
+        double resultado =
+                reporteService.calcularBalancePorMes(9, 2026);
+
+        assertEquals(-30000.0, resultado);
     }
 }
