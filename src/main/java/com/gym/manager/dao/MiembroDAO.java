@@ -1,18 +1,23 @@
 package com.gym.manager.dao;
 
-import com.gym.manager.model.Miembro;
-import com.gym.manager.model.Plan;
-import com.gym.manager.model.enums.EstadoMiembro;
-import com.gym.manager.util.DatabaseManager;
-import com.gym.manager.exceptions.ConexionBDException;
-import com.gym.manager.interfaces.DAO;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.gym.manager.exceptions.ConexionBDException;
+import com.gym.manager.interfaces.DAO;
+import com.gym.manager.model.Miembro;
+import com.gym.manager.model.Plan;
+import com.gym.manager.model.enums.EstadoMiembro;
+import com.gym.manager.util.DatabaseManager;
 
 public class MiembroDAO implements DAO<Miembro> {
 
@@ -197,8 +202,9 @@ public class MiembroDAO implements DAO<Miembro> {
             }
         } catch (SQLException e) {
             try {
-                if (autoCommitOriginal)
+                if (autoCommitOriginal) {
                     conn.rollback();
+                }
             } catch (SQLException ex) {
                 System.out.println("Error al hacer rollback " + ex.getMessage());
             }
