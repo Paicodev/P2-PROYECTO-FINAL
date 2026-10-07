@@ -58,6 +58,18 @@ class DatabaseManagerTest {
                 "La conexión debería estar abierta.");
     }
 
+    @Test
+    public void testCerrarConexion_ReseteaLaInstancia() {
+        DatabaseManager instanciaAnterior = DatabaseManager.getInstance();
+        instanciaAnterior.cerrarConexion(); // Ejecutamos tu código arreglado
+        
+        DatabaseManager instanciaNueva = DatabaseManager.getInstance();
+        
+        // Como cerramos la anterior, el sistema debió verse obligado a crear una nueva
+        assertNotSame(instanciaAnterior, instanciaNueva, "La instancia no se limpió al hacer cerrarConexion().");
+    }
+
+
     // ── Cierre: se ejecuta UNA VEZ después de todos los tests 
     @AfterAll
     static void cerrarConexion() {
