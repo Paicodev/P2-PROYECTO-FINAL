@@ -1,5 +1,6 @@
 package com.gym.manager.view.dialogs;
 
+import com.gym.manager.exceptions.DatosInvalidosException;
 import com.gym.manager.model.Miembro;
 import com.gym.manager.model.Plan;
 import com.gym.manager.model.enums.EstadoMiembro;
@@ -141,21 +142,27 @@ public class DialogMiembro extends JDialog {
         // Calculamos el vencimiento automáticamente sumando los meses del plan
         LocalDate fechaVenc = (planSeleccionado != null) ? fechaInscrip.plusMonths(planSeleccionado.getDuracionMeses()) : fechaInscrip;
 
-        miembroResultante = new Miembro(
-            fechaInscrip, 
-            fechaVenc, 
-            planSeleccionado, 
-            estadoSeleccionado, 
-            idMiembroEdicion, 
-            txtNombre.getText(), 
-            txtApellido.getText(), 
-            txtDni.getText(), 
-            txtEmail.getText(), 
-            txtTelefono.getText()
-        );
-        
-        confirmado = true;
-        dispose();
+        try {
+            miembroResultante = new Miembro(
+                fechaInscrip, 
+                fechaVenc, 
+                planSeleccionado, 
+                estadoSeleccionado, 
+                idMiembroEdicion, 
+                txtNombre.getText(), 
+                txtApellido.getText(), 
+                txtDni.getText(), 
+                txtEmail.getText(), 
+                txtTelefono.getText()
+            );
+            
+            confirmado = true;
+            dispose();
+        } catch (DatosInvalidosException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Dato Inválido", JOptionPane.WARNING_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public Miembro getMiembroResultante() { return miembroResultante; }
