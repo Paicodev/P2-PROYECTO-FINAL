@@ -392,3 +392,15 @@ INSERT INTO Pagos (monto, fecha_pago, tipo, estado, descripcion, Miembros_idMiem
 (35000.00, '2026-06-08', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Full', 53),
 (35000.00, '2026-06-09', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Full', 54),
 (35000.00, '2026-06-10', 'MENSUALIDAD', 'PAGADO', 'Alta Plan Full', 55);
+
+-- 1. Ponemos a los primeros 40 socios al día (vencen dentro de 1 mes a partir de hoy)
+UPDATE Miembros 
+SET fecha_vencimiento = DATE_ADD(CURDATE(), INTERVAL 1 MONTH), 
+    estado = 'ACTIVO' 
+WHERE idMiembros <= 40;
+
+-- 2. Dejamos a los socios del 41 al 55 con vencimiento en el pasado (quedan VENCIDOS)
+UPDATE Miembros 
+SET fecha_vencimiento = DATE_SUB(CURDATE(), INTERVAL 5 DAY), 
+    estado = 'VENCIDO' 
+WHERE idMiembros > 40;

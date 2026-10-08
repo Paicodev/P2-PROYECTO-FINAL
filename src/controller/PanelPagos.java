@@ -1,6 +1,5 @@
 package com.gym.manager.view.panels;
 
-import com.gym.manager.dao.PagoDAO;
 import com.gym.manager.model.Miembro;
 import com.gym.manager.model.Pago;
 import com.gym.manager.model.enums.EstadoPago;
@@ -22,15 +21,14 @@ import java.util.Optional;
 public class PanelPagos extends JPanel {
 
     // Paleta de Colores de FitBase
-    private static final Color BG_CENTRAL      = new Color(28, 43, 51);
-    private static final Color BG_FORMULARIO   = new Color(22, 38, 45);
+    private static final Color BG_CENTRAL = new Color(28, 43, 51);
+    private static final Color BG_FORMULARIO = new Color(22, 38, 45);
     private static final Color ACENTO_TURQUESA = new Color(0, 150, 136);
-    private static final Color TEXTO_BLANCO    = new Color(230, 230, 230);
-    private static final Color TEXTO_GRIS      = new Color(160, 175, 180);
-    private static final Color BG_INPUTS       = new Color(35, 58, 70);
+    private static final Color TEXTO_BLANCO = new Color(230, 230, 230);
+    private static final Color TEXTO_GRIS = new Color(160, 175, 180);
+    private static final Color BG_INPUTS = new Color(35, 58, 70);
 
     private PagoService pagoService;
-    private PagoDAO pagoDAO;
     private MiembroService miembroService;
 
     private JTable tablaPagos;
@@ -43,7 +41,6 @@ public class PanelPagos extends JPanel {
 
     public PanelPagos() {
         this.pagoService = new PagoService();
-        this.pagoDAO = new PagoDAO(); 
         this.miembroService = new MiembroService();
 
         setBackground(BG_CENTRAL);
@@ -60,7 +57,8 @@ public class PanelPagos extends JPanel {
         JPanel panelContenedor = new JPanel(new BorderLayout(10, 10));
         panelContenedor.setBackground(BG_FORMULARIO);
 
-        TitledBorder borde = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(50, 70, 80)), " Gestión de Pagos ");
+        TitledBorder borde = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(50, 70, 80)),
+                " Gestión de Pagos ");
         borde.setTitleColor(ACENTO_TURQUESA);
         borde.setTitleFont(new Font("Segoe UI", Font.BOLD, 14));
         panelContenedor.setBorder(BorderFactory.createCompoundBorder(borde, new EmptyBorder(10, 10, 10, 10)));
@@ -71,7 +69,7 @@ public class PanelPagos extends JPanel {
         txtDniMiembro = crearTextField();
         txtMonto = crearTextField();
         // Restringimos las opciones visibles para el usuario sin alterar la BD
-        comboTipo = new JComboBox<>(new TipoPago[]{TipoPago.MENSUALIDAD, TipoPago.CLASE});
+        comboTipo = new JComboBox<>(new TipoPago[] { TipoPago.MENSUALIDAD, TipoPago.CLASE });
         estilizarComponenteUI(comboTipo);
         txtDescripcion = crearTextField();
 
@@ -115,10 +113,13 @@ public class PanelPagos extends JPanel {
         JPanel panelTabla = new JPanel(new BorderLayout());
         panelTabla.setBackground(BG_CENTRAL);
 
-        String[] columnas = {"ID Pago", "DNI Miembro", "Monto", "Fecha", "Tipo", "Estado", "Descripción", "Vencimiento"};
+        String[] columnas = { "ID Pago", "DNI Miembro", "Monto", "Fecha", "Tipo", "Estado", "Descripción",
+                "Vencimiento" };
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
 
         tablaPagos = new JTable(modeloTabla);
@@ -158,7 +159,7 @@ public class PanelPagos extends JPanel {
         SwingWorker<List<Pago>, Void> worker = new SwingWorker<List<Pago>, Void>() {
             @Override
             protected List<Pago> doInBackground() throws Exception {
-                return pagoDAO.obtenerTodos();
+                return pagoService.obtenerTodosLosPagos();
             }
 
             @Override
@@ -170,14 +171,16 @@ public class PanelPagos extends JPanel {
 
                     for (Pago p : pagos) {
                         Object[] fila = {
-                            p.getId(),
-                            p.getMiembro() != null ? p.getMiembro().getDni() : "N/A",
-                            p.getMonto(),
-                            p.getFecha() != null ? p.getFecha().format(formatter) : "",
-                            p.getTipo() != null ? p.getTipo().name() : "N/A",
-                            p.getEstado() != null ? p.getEstado().name() : "N/A",
-                            p.getDescripcion(),
-                            (p.getMiembro() != null && p.getMiembro().getFechaVencimiento() != null) ? p.getMiembro().getFechaVencimiento().toString() : "N/A"
+                                p.getId(),
+                                p.getMiembro() != null ? p.getMiembro().getDni() : "N/A",
+                                p.getMonto(),
+                                p.getFecha() != null ? p.getFecha().format(formatter) : "",
+                                p.getTipo() != null ? p.getTipo().name() : "N/A",
+                                p.getEstado() != null ? p.getEstado().name() : "N/A",
+                                p.getDescripcion(),
+                                (p.getMiembro() != null && p.getMiembro().getFechaVencimiento() != null)
+                                        ? p.getMiembro().getFechaVencimiento().toString()
+                                        : "N/A"
                         };
                         modeloTabla.addRow(fila);
                     }
@@ -200,19 +203,21 @@ public class PanelPagos extends JPanel {
             // Validamos que el miembro realmente exista buscando por DNI
             Optional<Miembro> miembroOpt = miembroService.buscarPorDni(dniMiembro);
             if (!miembroOpt.isPresent()) {
-                JOptionPane.showMessageDialog(this, "No se encontró ningún miembro con el DNI especificado.", "Miembro Inexistente", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "No se encontró ningún miembro con el DNI especificado.",
+                        "Miembro Inexistente", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
             Pago nuevoPago = new Pago(0, miembroOpt.get(), monto, LocalDateTime.now(), tipo, estado, desc);
             pagoService.registrarPago(nuevoPago);
-            
+
             JOptionPane.showMessageDialog(this, "Pago registrado con éxito.");
             limpiarFormulario();
             cargarDatosEnTabla();
 
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Verifique que el DNI de Miembro y el Monto sea un valor numérico.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Verifique que el DNI de Miembro y el Monto sea un valor numérico.",
+                    "Error de Formato", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -226,15 +231,20 @@ public class PanelPagos extends JPanel {
         }
 
         int idPago = (int) tablaPagos.getValueAt(fila, 0);
-        int confirmacion = JOptionPane.showConfirmDialog(this, "¿Seguro que desea eliminar el registro de este pago?", "Confirmar Eliminación", JOptionPane.YES_NO_OPTION);
-        
+        int confirmacion = JOptionPane.showConfirmDialog(
+                this,
+                "¿Seguro que desea eliminar el registro de este pago?\n(Nota: La eliminación contable no modifica el vencimiento actual del socio).",
+                "Confirmar Eliminación",
+                JOptionPane.YES_NO_OPTION);
+
         if (confirmacion == JOptionPane.YES_OPTION) {
             try {
                 pagoService.eliminarPago(idPago);
                 cargarDatosEnTabla();
                 JOptionPane.showMessageDialog(this, "Pago eliminado.");
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error al eliminar: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error al eliminar: " + ex.getMessage(), "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -247,18 +257,18 @@ public class PanelPagos extends JPanel {
         }
 
         int idPago = (int) tablaPagos.getValueAt(fila, 0);
-        Optional<Pago> pagoOpt = pagoDAO.buscarPorId(idPago);
-        
+        Optional<Pago> pagoOpt = pagoService.buscarPorId(idPago);
+
         if (pagoOpt.isPresent()) {
             Pago pago = pagoOpt.get();
             String recibo = pago.generarRecibo();
-            
+
             // Añadimos el vencimiento dinámicamente al recibo
             if (pago.getMiembro() != null && pago.getMiembro().getFechaVencimiento() != null) {
                 recibo += "\n-------------------------------------------------\n";
                 recibo += "Próximo Vencimiento: " + pago.getMiembro().getFechaVencimiento().toString() + "\n";
             }
-            
+
             JOptionPane.showMessageDialog(this, recibo, "Comprobante de Pago", JOptionPane.INFORMATION_MESSAGE);
         }
     }
@@ -292,8 +302,7 @@ public class PanelPagos extends JPanel {
         c.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         c.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(60, 80, 95), 1),
-                BorderFactory.createEmptyBorder(5, 5, 5, 5)
-        ));
+                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
     }
 
     private JButton crearBoton(String texto, Color color) {

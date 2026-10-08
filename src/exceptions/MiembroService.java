@@ -1,20 +1,27 @@
 package com.gym.manager.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import com.gym.manager.dao.MiembroDAO;
 import com.gym.manager.exceptions.DatosInvalidosException;
 import com.gym.manager.model.Miembro;
 
-import java.util.List;
-import java.util.Optional;
-
 /**
- * Contiene toda la lógica de negocio y validaciones antes de interactuar con la BD.
+ * Contiene toda la lógica de negocio y validaciones antes de interactuar con la
+ * BD.
  */
 public class MiembroService {
+
     private MiembroDAO miembroDAO;
 
     public MiembroService() {
         this.miembroDAO = new MiembroDAO();
+    }
+
+    // Constructor para inyección de dependencias (para pruebas unitarias)
+    public MiembroService(MiembroDAO miembroDAO) {
+        this.miembroDAO = miembroDAO;
     }
 
     //validaciones y reglas de negocio para guardar un nuevo miembro en el sistema
@@ -55,7 +62,6 @@ public class MiembroService {
     }
 
     // métodos que solo conectan la vista con el DAO sin validación extra
-
     public void eliminarMiembro(int id) {
         miembroDAO.eliminar(id);
     }
